@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es" style=""><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+<meta content="mobile_tab" name="shell-type"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "on-primary-fixed-variant": "#003fa4",
+            "inverse-primary": "#0054d6",
+            "secondary": "#aac7ff",
+            "on-tertiary-container": "#fff5f5",
+            "on-background": "#e2e2ea",
+            "outline": "#8c90a1",
+            "surface-container-high": "#282a30",
+            "surface-container-highest": "#33353b",
+            "primary": "#b3c5ff",
+            "surface-dim": "#111319",
+            "surface-container": "#1d2025",
+            "outline-variant": "#424656",
+            "tertiary": "#ffb3b5",
+            "secondary-container": "#3e90ff",
+            "tertiary-container": "#e10a43",
+            "surface-container-lowest": "#0c0e13",
+            "on-primary-container": "#f8f7ff",
+            "surface": "#111319",
+            "surface-variant": "#33353b",
+            "on-surface-variant": "#c2c6d8",
+            "background": "#0b0f17",
+            "on-surface": "#e2e2ea",
+            "surface-container-low": "#191c21",
+            "primary-container": "#0066ff"
+          },
+          borderRadius: {
+            "squircle": "28px",
+            "full": "9999px"
+          },
+          fontFamily: {
+            "body": ["Manrope", "sans-serif"],
+            "mono": ["JetBrains Mono", "monospace"]
+          }
+        }
+      }
+    };
+  </script>
+<style>
+    @layer base {
+      html, body {
+        width: 100vw;
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+      }
+      body {
+        overscroll-behavior-y: none;
+      }
+      .pb-safe {
+        padding-bottom: env(safe-area-inset-bottom, 20px);
+      }
+      .pt-safe {
+        padding-top: env(safe-area-inset-top, 16px);
+      }
+    }
+    ::-webkit-scrollbar { display: none; }
+    
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 0.35; transform: scale(1); }
+      50% { opacity: 0.65; transform: scale(1.08); }
+    }
+    .animate-ambient {
+      animation: pulseGlow 6s ease-in-out infinite;
+    }
+    .glass-squircle {
+      backdrop-filter: blur(32px);
+      -webkit-backdrop-filter: blur(32px);
+      border-radius: 28px;
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-[#0b0f17] dark:bg-[#0b0f17] text-[#e2e2ea] dark:text-[#e2e2ea] font-body antialiased relative min-h-screen selection:bg-primary selection:text-on-primary transition-colors duration-300">
+<!-- Ambient Dynamic Mesh Glows -->
+<div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+<div class="absolute -top-24 -left-20 w-[420px] h-[420px] rounded-full bg-red-600/15 dark:bg-red-500/12 blur-[120px] animate-ambient"></div>
+<div class="absolute top-1/2 -right-24 w-[380px] h-[380px] rounded-full bg-blue-600/15 dark:bg-blue-500/12 blur-[120px] animate-ambient" style="animation-delay: 3s;"></div>
+</div>
+<!-- Header: Minimal Glass Bar -->
+<header class="fixed top-0 inset-x-0 z-50 pt-safe bg-[#0b0f17]/60 dark:bg-[#0b0f17]/70 backdrop-blur-2xl border-b border-white/[0.05]">
+<div class="h-16 px-5 flex items-center justify-between gap-3">
+<!-- Brand & Step Progress Pill -->
+<div class="flex items-center gap-2">
+<div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.07] border border-white/[0.08] backdrop-blur-xl shadow-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-[#aac7ff] shadow-[0_0_8px_#aac7ff]"></span>
+<span class="font-bold text-xs tracking-wide text-white">TrIAje</span>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/[0.04] border border-white/[0.06]">
+<span class="font-mono text-[11px] text-zinc-400 font-medium tracking-tight">Paso 1 de 6</span>
+</div>
+</div>
+<!-- Quick Action Controls -->
+<div class="flex items-center gap-2">
+<!-- SAMU 106 Glowing Button -->
+<a class="h-9 px-3.5 rounded-full bg-gradient-to-r from-rose-600 to-red-600 text-white text-xs font-bold tracking-wider flex items-center gap-1.5 shadow-[0_0_18px_rgba(225,29,72,0.45)] active:scale-95 transition-all" href="tel:106">
+<span class="material-symbols-outlined text-[17px] leading-none animate-pulse" style="font-variation-settings: 'FILL' 1;">e911_emergency</span>
+<span class="">SAMU 106</span>
+</a>
+<!-- Dark / Light Mode Switcher -->
+<button aria-label="Cambiar tema" class="w-9 h-9 rounded-full bg-white/[0.06] border border-white/[0.08] flex items-center justify-center text-zinc-300 hover:text-white active:scale-90 transition-all" onclick="toggleTheme()">
+<span class="material-symbols-outlined text-[18px]" id="theme-icon">light_mode</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Body Content -->
+<main class="flex flex-col relative w-full pt-28 pb-32 min-h-screen z-10 px-5 max-w-md mx-auto"><div class="flex flex-col w-full pb-6 space-y-5">
+<!-- Sub-header navigation row with back trigger & step info -->
+<div class="flex items-center justify-between w-full">
+<button aria-label="Volver al paso anterior" class="flex items-center justify-center w-10 h-10 rounded-full bg-surface-container-high/80 backdrop-blur-xl text-on-surface shadow-sm active:scale-95 transition-all" onclick="window.history.back()" type="button">
+<span class="material-symbols-outlined text-[20px]">arrow_back</span>
+</button>
+<div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-high/60 backdrop-blur-xl">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary shadow-[0_0_6px_#aac7ff]"></span>
+<span class="font-label-caps text-label-caps text-secondary uppercase tracking-wider">Centro &amp; Modalidad</span>
+</div>
+<div class="w-10"></div>
+</div>
+<!-- Screen Heading -->
+<div class="space-y-1">
+<h1 class="font-headline-xl-mobile text-headline-xl-mobile text-on-surface font-semibold tracking-tight">¿Dónde deseas atenderte?</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Ubica tu centro más cercano o elige teleconsulta.</p>
+</div>
+<!-- Service Mode Switcher (Spatial VisionOS Segmented Pill) -->
+<div class="p-1 rounded-full bg-surface-container-lowest/90 backdrop-blur-2xl shadow-inner flex items-center gap-1">
+<button class="flex-1 py-2.5 px-4 rounded-full bg-secondary-container/20 text-on-primary-container font-body-sm text-body-sm font-semibold flex items-center justify-center gap-2 shadow-[0_0_24px_rgba(62,144,255,0.25)] transition-all" id="mode-presencial" onclick="switchMode('presencial')" type="button">
+<span class="material-symbols-outlined text-[17px] text-secondary" style="font-variation-settings: 'FILL' 1;">domain</span>
+<span>Presencial (Centro de Salud)</span>
+</button>
+<button class="flex-1 py-2.5 px-3 rounded-full text-on-surface-variant font-body-sm text-body-sm font-medium flex items-center justify-center gap-2 hover:text-on-surface transition-all" id="mode-teleconsulta" onclick="switchMode('teleconsulta')" type="button">
+<span class="material-symbols-outlined text-[17px]">video_chat</span>
+<span>Teleconsulta</span>
+</button>
+</div>
+<!-- Search Spatial Bar -->
+<div class="relative w-full">
+<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-outline">
+<span class="material-symbols-outlined text-[19px]">search</span>
+</div>
+<input class="w-full pl-11 pr-10 py-3 rounded-full bg-surface-container-low/90 backdrop-blur-xl text-on-surface placeholder:text-outline font-body-sm text-body-sm shadow-sm focus:outline-none focus:bg-surface-container transition-all" placeholder="Buscar posta, policlínico u hospital..." type="text"/>
+<button aria-label="Filtro rápido de ubicación" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-outline hover:text-on-surface" type="button">
+<span class="material-symbols-outlined text-[18px]">tune</span>
+</button>
+</div>
+<!-- Distance / Tag Chips (Horizontal Scrollable) -->
+<div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5 -mx-5 px-5">
+<button class="shrink-0 px-3.5 py-1.5 rounded-full bg-secondary-container/15 text-secondary font-label-caps text-label-caps font-semibold flex items-center gap-1.5 shadow-[0_0_12px_rgba(170,199,255,0.2)]">
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">near_me</span>
+<span>&lt; 2 km</span>
+</button>
+<button class="shrink-0 px-3.5 py-1.5 rounded-full bg-surface-container-high/70 text-on-surface-variant hover:text-on-surface font-label-caps text-label-caps font-medium transition-all">
+      Citas hoy
+    </button>
+<button class="shrink-0 px-3.5 py-1.5 rounded-full bg-surface-container-high/70 text-on-surface-variant hover:text-on-surface font-label-caps text-label-caps font-medium transition-all">
+      Posta / CS I-3
+    </button>
+<button class="shrink-0 px-3.5 py-1.5 rounded-full bg-surface-container-high/70 text-on-surface-variant hover:text-on-surface font-label-caps text-label-caps font-medium transition-all">
+      Hospital II / III
+    </button>
+</div>
+<!-- Interactive Minimal Spatial Radar / Map Module -->
+<div class="relative w-full h-44 rounded-squircle bg-surface-container-low overflow-hidden shadow-lg flex flex-col justify-between p-4 group">
+<!-- Stylized Grid Ground & Pulse Canvas Overlay -->
+<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary-container/10 via-surface-container-lowest/80 to-surface-container-lowest pointer-events-none"></div>
+<div class="absolute inset-0 bg-cover bg-center opacity-30 mix-blend-luminosity" data-location="San Isidro, Lima, Peru" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuChs3GBJr-hIOLEgkIvbcPyIQWTXNZy-qk0r66-v5E1P-udoOxTT03E3K9zh5tk_8vsBBU1wbnw8ySF0oc8lWdK_SJ6-pY05XdQ5PXJzNgeSluxasRw4Cj_PZeGJ-uBMxpZY9vgmDTcup4y6SgMfUl9_RZUWacr74eEriokBPj8ypwugrWQRsNsfWg2mP5vZZl5Gy14JeYuBGEHJS5swzViOc6_I8BMjT5WybyxrSm8qtKlHlxPruC7eg')"></div>
+<!-- Live Patient Ping Center -->
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center pointer-events-none">
+<div class="relative flex items-center justify-center">
+<span class="absolute w-12 h-12 rounded-full bg-secondary-container/20 animate-ping"></span>
+<span class="absolute w-7 h-7 rounded-full bg-secondary-container/40"></span>
+<div class="w-3.5 h-3.5 rounded-full bg-secondary shadow-[0_0_12px_#aac7ff] z-10"></div>
+</div>
+<span class="mt-2 px-2.5 py-0.5 rounded-full bg-surface-container-lowest/90 backdrop-blur-md text-[10px] font-mono text-secondary tracking-tight">Estás aquí</span>
+</div>
+<!-- Map Floating Telemetry Badges -->
+<div class="relative z-10 flex items-center justify-between w-full">
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-highest/80 backdrop-blur-xl text-on-surface shadow-sm">
+<span class="material-symbols-outlined text-[13px] text-secondary">my_location</span>
+<span class="font-telemetry-md text-[11px] text-on-surface">San Isidro / Lince, Lima</span>
+</div>
+<div class="px-2 py-0.5 rounded-full bg-surface-container-highest/80 backdrop-blur-xl text-[10px] font-mono text-on-surface-variant">
+        GPS ±4m
+      </div>
+</div>
+<!-- Map Card Bottom Quick Action -->
+<div class="relative z-10 flex items-center justify-between">
+<span class="text-[11px] font-body-sm text-on-surface-variant">3 establecimientos priorizados</span>
+<button class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-highest/90 hover:bg-surface-bright text-secondary text-xs font-semibold backdrop-blur-xl transition-all" type="button">
+<span>Expandir mapa</span>
+<span class="material-symbols-outlined text-[13px]">open_in_full</span>
+</button>
+</div>
+</div>
+<!-- Recommended Healthcare Centers Stack -->
+<div class="space-y-3 pt-1">
+<div class="flex items-center justify-between px-1">
+<span class="font-label-caps text-label-caps text-outline uppercase tracking-wider">Establecimientos recomendados</span>
+<span class="font-telemetry-md text-[11px] text-secondary">Orden: Proximidad</span>
+</div>
+<!-- Center Card 1 (Active Selected: CS San Isidro) -->
+<div class="relative p-4 rounded-squircle bg-surface-container-low/95 backdrop-blur-2xl shadow-[0_12px_32px_rgba(0,102,255,0.12)] cursor-pointer active:scale-[0.99] transition-all" id="card-center-1" onclick="selectCenter(1)">
+<div class="flex items-start justify-between gap-3">
+<div class="w-10 h-10 rounded-2xl bg-secondary-container/20 flex items-center justify-center text-secondary shrink-0 shadow-[0_0_16px_rgba(62,144,255,0.2)]">
+<span class="material-symbols-outlined text-[22px]" style="font-variation-settings: 'FILL' 1;">local_hospital</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between">
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-semibold truncate">C.S. San Isidro (I-3)</h2>
+<div class="w-5 h-5 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container shadow-[0_0_10px_#0066ff]" id="radio-1">
+<span class="material-symbols-outlined text-[14px]">check</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-secondary font-medium mt-0.5">0.8 km • 12 min a pie</p>
+<div class="flex items-center gap-1.5 mt-2 flex-wrap">
+<span class="px-2 py-0.5 rounded-full bg-surface-container-highest text-[11px] font-mono text-on-surface-variant font-medium">MINSA</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-highest text-[11px] font-body-sm text-on-surface-variant">Medicina General</span>
+</div>
+</div>
+</div>
+<div class="mt-3.5 pt-3 flex items-center justify-between bg-surface-container/60 -mx-4 -mb-4 px-4 py-2.5 rounded-b-squircle">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]"></span>
+<span class="font-body-sm text-body-sm text-on-surface font-medium">4 médicos disponibles hoy</span>
+</div>
+<span class="font-label-caps text-label-caps text-secondary font-bold">SELECCIONADO</span>
+</div>
+</div>
+<!-- Center Card 2 (Policlínico Pablo Bermúdez) -->
+<div class="relative p-4 rounded-squircle bg-surface-container-low/70 hover:bg-surface-container-low backdrop-blur-xl shadow-md cursor-pointer active:scale-[0.99] transition-all" id="card-center-2" onclick="selectCenter(2)">
+<div class="flex items-start justify-between gap-3">
+<div class="w-10 h-10 rounded-2xl bg-surface-container-highest flex items-center justify-center text-on-surface-variant shrink-0">
+<span class="material-symbols-outlined text-[22px]">health_and_safety</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between">
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-semibold truncate">Policlínico Bermúdez</h2>
+<div class="w-5 h-5 rounded-full bg-surface-container-highest flex items-center justify-center text-transparent" id="radio-2">
+<span class="material-symbols-outlined text-[14px]">check</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">1.9 km • 8 min en auto</p>
+<div class="flex items-center gap-1.5 mt-2 flex-wrap">
+<span class="px-2 py-0.5 rounded-full bg-surface-container-highest text-[11px] font-mono text-secondary font-medium">EsSalud</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-highest text-[11px] font-body-sm text-on-surface-variant">Consulta ambulatoria</span>
+</div>
+</div>
+</div>
+<div class="mt-3.5 pt-3 flex items-center justify-between bg-surface-container-lowest/40 -mx-4 -mb-4 px-4 py-2.5 rounded-b-squircle">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]"></span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Citas para hoy disponibles</span>
+</div>
+<span class="font-body-sm text-body-sm text-outline">Elegir</span>
+</div>
+</div>
+<!-- Center Card 3 (Hospital Nacional Dos de Mayo) -->
+<div class="relative p-4 rounded-squircle bg-surface-container-low/70 hover:bg-surface-container-low backdrop-blur-xl shadow-md cursor-pointer active:scale-[0.99] transition-all" id="card-center-3" onclick="selectCenter(3)">
+<div class="flex items-start justify-between gap-3">
+<div class="w-10 h-10 rounded-2xl bg-surface-container-highest flex items-center justify-center text-on-surface-variant shrink-0">
+<span class="material-symbols-outlined text-[22px]">apartment</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between">
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-semibold truncate">Hospital Dos de Mayo</h2>
+<div class="w-5 h-5 rounded-full bg-surface-container-highest flex items-center justify-center text-transparent" id="radio-3">
+<span class="material-symbols-outlined text-[14px]">check</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">3.2 km • 18 min en auto</p>
+<div class="flex items-center gap-1.5 mt-2 flex-wrap">
+<span class="px-2 py-0.5 rounded-full bg-surface-container-highest text-[11px] font-mono text-on-surface-variant font-medium">MINSA III-1</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-highest text-[11px] font-body-sm text-on-surface-variant">Especialidades</span>
+</div>
+</div>
+</div>
+<div class="mt-3.5 pt-3 flex items-center justify-between bg-surface-container-lowest/40 -mx-4 -mb-4 px-4 py-2.5 rounded-b-squircle">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-amber-400"></span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Turno tarde disponible</span>
+</div>
+<span class="font-body-sm text-body-sm text-outline">Elegir</span>
+</div>
+</div>
+</div>
+<!-- Primary Spatial Forward CTA Button -->
+<div class="pt-3">
+<button class="w-full py-4 px-6 rounded-full bg-gradient-to-r from-primary-container via-blue-600 to-secondary-container text-on-primary-container font-headline-sm text-headline-sm font-semibold flex items-center justify-center gap-2 shadow-[0_10px_35px_rgba(0,102,255,0.4)] active:scale-[0.98] transition-all" onclick="continueFlow()" type="button">
+<span>Continuar con Datos del Paciente</span>
+<span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+<div class="text-center mt-2.5">
+<span class="font-telemetry-md text-[11px] text-outline font-mono">Paso 2 completado de 6</span>
+</div>
+</div>
+</div>
+<script>
+  let selectedCenterId = 1;
+
+  function switchMode(mode) {
+    const btnPresencial = document.getElementById('mode-presencial');
+    const btnTeleconsulta = document.getElementById('mode-teleconsulta');
+
+    if (mode === 'presencial') {
+      btnPresencial.className = 'flex-1 py-2.5 px-4 rounded-full bg-secondary-container/20 text-on-primary-container font-body-sm text-body-sm font-semibold flex items-center justify-center gap-2 shadow-[0_0_24px_rgba(62,144,255,0.25)] transition-all';
+      btnTeleconsulta.className = 'flex-1 py-2.5 px-3 rounded-full text-on-surface-variant font-body-sm text-body-sm font-medium flex items-center justify-center gap-2 hover:text-on-surface transition-all';
+    } else {
+      btnTeleconsulta.className = 'flex-1 py-2.5 px-4 rounded-full bg-secondary-container/20 text-on-primary-container font-body-sm text-body-sm font-semibold flex items-center justify-center gap-2 shadow-[0_0_24px_rgba(62,144,255,0.25)] transition-all';
+      btnPresencial.className = 'flex-1 py-2.5 px-3 rounded-full text-on-surface-variant font-body-sm text-body-sm font-medium flex items-center justify-center gap-2 hover:text-on-surface transition-all';
+    }
+  }
+
+  function selectCenter(id) {
+    selectedCenterId = id;
+    [1, 2, 3].forEach(idx => {
+      const card = document.getElementById(`card-center-${idx}`);
+      const radio = document.getElementById(`radio-${idx}`);
+      if (!card || !radio) return;
+
+      if (idx === id) {
+        card.className = 'relative p-4 rounded-squircle bg-surface-container-low/95 backdrop-blur-2xl shadow-[0_12px_32px_rgba(0,102,255,0.12)] cursor-pointer active:scale-[0.99] transition-all';
+        radio.className = 'w-5 h-5 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container shadow-[0_0_10px_#0066ff]';
+      } else {
+        card.className = 'relative p-4 rounded-squircle bg-surface-container-low/70 hover:bg-surface-container-low backdrop-blur-xl shadow-md cursor-pointer active:scale-[0.99] transition-all';
+        radio.className = 'w-5 h-5 rounded-full bg-surface-container-highest flex items-center justify-center text-transparent';
+      }
+    });
+  }
+
+  function continueFlow() {
+    if (typeof handleSelect === 'function') {
+      handleSelect('general');
+    }
+  }
+</script></main>
+<!-- Sleek Apple Spatial Bottom Tab Bar -->
+<nav class="fixed bottom-4 inset-x-0 z-50 px-5 pb-safe flex justify-center pointer-events-none">
+<div class="pointer-events-auto h-16 w-full max-w-md px-3 rounded-full bg-zinc-950/70 dark:bg-[#111622]/80 backdrop-blur-3xl border border-white/[0.08] shadow-[0_20px_50px_rgba(0,0,0,0.65)] flex items-center justify-around">
+<a class="flex flex-col items-center justify-center w-14 h-12 rounded-full text-zinc-400 hover:text-white transition-all duration-200 active:scale-95" data-path="triaje" href="#">
+<span class="material-symbols-outlined text-[21px]" style="font-variation-settings: 'FILL' 1;">ecg_heart</span>
+<span class="font-mono text-[9px] mt-0.5 tracking-tight">Triaje</span>
+</a>
+<a class="flex flex-col items-center justify-center w-14 h-12 rounded-full text-zinc-400 hover:text-white transition-all duration-200 active:scale-95" data-path="signos" href="#">
+</a>
+<a class="flex flex-col items-center justify-center w-14 h-12 rounded-full text-zinc-400 hover:text-white transition-all duration-200 active:scale-95" data-path="historial" href="#">
+</a>
+</div>
+</nav>
+<!-- Interactive JavaScript Logic -->
+<script>
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      const icon = document.getElementById('theme-icon');
+      if (isDark) {
+        document.body.classList.remove('bg-[#f0f4f9]', 'text-zinc-900');
+        document.body.classList.add('bg-[#0b0f17]', 'text-[#e2e2ea]');
+        icon.innerText = 'light_mode';
+      } else {
+        document.body.classList.remove('bg-[#0b0f17]', 'text-[#e2e2ea]');
+        document.body.classList.add('bg-[#f0f4f9]', 'text-zinc-900');
+        icon.innerText = 'dark_mode';
+      }
+    }
+
+    let toastTimer;
+    function handleSelect(type) {
+      const toast = document.getElementById('action-toast');
+      const title = document.getElementById('toast-title');
+      const icon = document.getElementById('toast-icon');
+      const iconWrap = document.getElementById('toast-icon-wrap');
+
+      clearTimeout(toastTimer);
+
+      if (type === 'emergencia') {
+        title.innerText = 'Iniciando Triaje de Emergencia...';
+        icon.innerText = 'emergency';
+        iconWrap.className = 'w-8 h-8 rounded-xl flex items-center justify-center shrink-0 bg-red-500/20 text-red-400';
+      } else {
+        title.innerText = 'Iniciando Consulta General...';
+        icon.innerText = 'stethoscope';
+        iconWrap.className = 'w-8 h-8 rounded-xl flex items-center justify-center shrink-0 bg-blue-500/20 text-blue-400';
+      }
+
+      toast.classList.remove('opacity-0', 'translate-y-3', 'pointer-events-none');
+      toast.classList.add('opacity-100', 'translate-y-0');
+
+      toastTimer = setTimeout(() => {
+        toast.classList.remove('opacity-100', 'translate-y-0');
+        toast.classList.add('opacity-0', 'translate-y-3', 'pointer-events-none');
+      }, 2600);
+    }
+  </script>
+</body></html>

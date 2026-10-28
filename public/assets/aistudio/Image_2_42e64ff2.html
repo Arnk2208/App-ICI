@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TriajeIA Perú - Emergencia Médica Inmediata Prioridad I</title>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- FontAwesome -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"/>
+<!-- Google Fonts: Plus Jakarta Sans / JetBrains Mono -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              400: '#60a5fa',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+            },
+            emergency: {
+              DEFAULT: '#dc2626',
+              glow: 'rgba(220, 38, 38, 0.45)',
+              dark: '#991b1b',
+            }
+          },
+          boxShadow: {
+            'liquid': '0 20px 40px -15px rgba(37, 99, 235, 0.12), 0 0 1px 1px rgba(255, 255, 255, 0.8) inset',
+            'liquid-dark': '0 20px 50px -15px rgba(0, 0, 0, 0.6), 0 0 1px 1px rgba(255, 255, 255, 0.1) inset',
+            'glass-glow': '0 10px 30px -5px rgba(37, 99, 235, 0.25)',
+            'emergency-glow': '0 15px 40px -5px rgba(220, 38, 38, 0.45), 0 0 1px 1px rgba(255, 255, 255, 0.8) inset',
+            'emergency-intense': '0 20px 50px -8px rgba(239, 68, 68, 0.55), 0 0 0 1px rgba(239, 68, 68, 0.4)',
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    /* Continuous smooth squircle border radii */
+    .squircle-lg { border-radius: 32px; }
+    .squircle-md { border-radius: 24px; }
+    .squircle-sm { border-radius: 18px; }
+    .squircle-full { border-radius: 9999px; }
+
+    /* Apple Liquid Glass Morphism */
+    .liquid-glass-card {
+      background: rgba(255, 255, 255, 0.78);
+      backdrop-filter: blur(36px) saturate(190%);
+      -webkit-backdrop-filter: blur(36px) saturate(190%);
+      border: 1px solid rgba(255, 255, 255, 0.75);
+      box-shadow: 0 20px 50px -12px rgba(15, 23, 42, 0.08), 0 1px 0 rgba(255, 255, 255, 0.9) inset;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .dark .liquid-glass-card {
+      background: rgba(20, 27, 41, 0.78);
+      backdrop-filter: blur(40px) saturate(180%);
+      -webkit-backdrop-filter: blur(40px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.75), 0 1px 0 rgba(255, 255, 255, 0.15) inset;
+    }
+
+    .liquid-glass-emergency {
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(36px) saturate(200%);
+      -webkit-backdrop-filter: blur(36px) saturate(200%);
+      border: 2px solid rgba(239, 68, 68, 0.45);
+      box-shadow: 0 25px 60px -12px rgba(220, 38, 38, 0.25), 0 0 0 1px rgba(254, 226, 226, 0.6) inset;
+    }
+    .dark .liquid-glass-emergency {
+      background: rgba(28, 16, 20, 0.85);
+      backdrop-filter: blur(40px) saturate(200%);
+      -webkit-backdrop-filter: blur(40px) saturate(200%);
+      border: 2px solid rgba(239, 68, 68, 0.45);
+      box-shadow: 0 30px 65px -12px rgba(220, 38, 38, 0.35), 0 0 0 1px rgba(239, 68, 68, 0.2) inset;
+    }
+
+    .liquid-glass-card-subtle {
+      background: rgba(255, 255, 255, 0.52);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+    }
+    .dark .liquid-glass-card-subtle {
+      background: rgba(30, 41, 59, 0.5);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    /* Ambient Liquid Orbs with Emergency Crimson Accent */
+    .ambient-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(95px);
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.7;
+      transition: all 0.8s ease;
+    }
+    .dark .ambient-orb {
+      opacity: 0.4;
+    }
+
+    /* Tactile Press Down Effect */
+    .press-tactile:active {
+      transform: scale(0.97);
+    }
+
+    /* Micro-pulse for emergency indicators */
+    @keyframes pulse-emergency {
+      0%, 100% {
+        box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.65);
+        transform: scale(1);
+      }
+      50% {
+        box-shadow: 0 0 0 16px rgba(220, 38, 38, 0);
+        transform: scale(1.02);
+      }
+    }
+    .emergency-pulse-ring {
+      animation: pulse-emergency 2.2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+    }
+
+    @keyframes pulse-badge {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    .badge-pulse {
+      animation: pulse-badge 1.4s infinite ease-in-out;
+    }
+
+    /* Custom range slider styling for EVA */
+    input[type=range]::-webkit-slider-thumb {
+      appearance: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #ffffff;
+      box-shadow: 0 4px 14px rgba(220, 38, 38, 0.4), 0 0 0 3px currentColor;
+      cursor: grab;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    input[type=range]::-webkit-slider-thumb:active {
+      cursor: grabbing;
+      transform: scale(1.15);
+      box-shadow: 0 6px 20px rgba(220, 38, 38, 0.5), 0 0 0 5px currentColor;
+    }
+
+    .step-view {
+      transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .step-hidden {
+      display: none !important;
+      opacity: 0;
+      transform: translateY(16px) scale(0.98);
+    }
+    .step-active {
+      display: block !important;
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  </style>
+</head>
+<body class="bg-[#f2f6fc] dark:bg-[#090d14] text-[#0f172a] dark:text-[#f8fafc] font-sans antialiased min-h-screen relative overflow-x-hidden transition-colors duration-500 selection:bg-red-500 selection:text-white">
+<!-- Ambient Liquid Crimson & Blue Glow Background Orbs -->
+<div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+<div class="ambient-orb w-[600px] h-[600px] -top-32 -left-32 bg-red-500/35 dark:bg-red-700/25" id="orb1"></div>
+<div class="ambient-orb w-[680px] h-[680px] top-1/4 -right-48 bg-rose-400/30 dark:bg-rose-900/25" id="orb2"></div>
+<div class="ambient-orb w-[550px] h-[550px] -bottom-40 left-1/3 bg-blue-400/25 dark:bg-indigo-900/20" id="orb3"></div>
+</div>
+<!-- Interactive Simulation Mode Switcher Banner (Floating Ribbon) -->
+<aside aria-label="Simulador de flujo" class="sticky top-2 z-40 max-w-4xl mx-auto px-4 mb-2">
+<div class="liquid-glass-card squircle-full px-4 py-2 flex flex-wrap items-center justify-between gap-2 border border-red-300 dark:border-red-900/60 shadow-lg">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-red-600 animate-ping"></span>
+<span class="text-xs font-extrabold uppercase tracking-wider text-red-600 dark:text-red-400 flex items-center gap-1.5">
+<i class="fa-solid fa-bolt-lightning text-amber-500"></i> Simulación Activa: Emergencia Código Rojo
+        </span>
+</div>
+<div class="flex items-center gap-1.5 overflow-x-auto py-0.5">
+<button class="sim-tab px-3 py-1 squircle-full text-[11px] font-bold transition-all bg-red-600 text-white shadow-sm hover:scale-105" id="tabBtn1" onclick="switchSimulationTab('2A')">
+          Paso 2A: Tipo de Emergencia
+        </button>
+<button class="sim-tab px-3 py-1 squircle-full text-[11px] font-bold text-slate-700 dark:text-slate-200 liquid-glass-card-subtle hover:bg-red-50 dark:hover:bg-red-950/40 transition-all hover:scale-105" id="tabBtn2" onclick="switchSimulationTab('CRITICAL')">
+          Paso 3: Filiación &amp; EVA 9-10
+        </button>
+<button class="sim-tab px-3 py-1 squircle-full text-[11px] font-bold text-slate-700 dark:text-slate-200 liquid-glass-card-subtle hover:bg-red-50 dark:hover:bg-red-950/40 transition-all hover:scale-105" id="tabBtn3" onclick="switchSimulationTab('FINAL')">
+          Pase Código Rojo (SBAR + QR)
+        </button>
+<button class="sim-tab px-2.5 py-1 squircle-full text-[11px] font-semibold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white" onclick="switchSimulationTab('STEP1')" title="Ver selección inicial">
+<i class="fa-solid fa-rotate-left"></i> Inicio
+        </button>
+</div>
+</div>
+</aside>
+<!-- Main Responsive Shell -->
+<div class="relative z-10 min-h-screen flex flex-col justify-between max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+<!-- Top Navigation Chrome / Liquid App Bar -->
+<header class="w-full mb-5">
+<div class="liquid-glass-card squircle-full px-5 py-3.5 flex items-center justify-between shadow-sm">
+<!-- Brand & Back Button -->
+<div class="flex items-center gap-3">
+<button class="w-10 h-10 squircle-full flex items-center justify-center liquid-glass-card-subtle text-slate-600 dark:text-slate-300 hover:text-red-600 dark:hover:text-red-400 press-tactile transition-all" id="btnBack" onclick="goBack()" title="Volver">
+<i class="fa-solid fa-arrow-left text-sm"></i>
+</button>
+<div class="flex items-center gap-2.5">
+<div class="w-10 h-10 squircle-md bg-gradient-to-tr from-red-600 via-rose-600 to-amber-500 flex items-center justify-center text-white shadow-md shadow-red-500/30">
+<i class="fa-solid fa-heart-pulse text-lg animate-pulse"></i>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-extrabold text-base tracking-tight text-slate-900 dark:text-white">TriajeIA</span>
+<span class="text-[10px] font-extrabold tracking-wider uppercase px-2 py-0.5 squircle-full bg-red-100 text-red-700 dark:bg-red-950/70 dark:text-red-300 border border-red-300 dark:border-red-800">CÓDIGO ROJO</span>
+</div>
+<p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Asistente de Triaje Vital MINSA / EsSalud</p>
+</div>
+</div>
+</div>
+<!-- Center Step Indicator Badge -->
+<div class="hidden sm:flex items-center gap-2 px-3 py-1.5 squircle-full liquid-glass-card-subtle border border-red-200/50 dark:border-red-900/30">
+<span class="w-2 h-2 rounded-full bg-red-600 animate-ping"></span>
+<span class="text-xs font-bold text-red-700 dark:text-red-300" id="stepCounterBadge">Emergencia Prioridad I</span>
+</div>
+<!-- Right Controls: Immediate Call SAMU 106 & Theme Switcher -->
+<div class="flex items-center gap-2.5">
+<a class="flex items-center gap-1.5 px-3.5 py-1.5 squircle-full bg-red-600 text-white shadow-lg shadow-red-600/35 border border-red-400 text-xs font-black hover:bg-red-700 transition-all press-tactile emergency-pulse-ring" href="tel:106">
+<i class="fa-solid fa-phone-volume text-xs"></i>
+<span>SAMU 106</span>
+</a>
+<!-- Liquid Theme Toggle Button -->
+<button class="w-10 h-10 squircle-full flex items-center justify-center liquid-glass-card-subtle text-slate-700 dark:text-amber-300 hover:shadow-lg press-tactile transition-all" id="themeToggleBtn" onclick="toggleTheme()" title="Cambiar Tema (Claro / Oscuro)">
+<i class="fa-solid fa-moon text-base" id="themeIcon"></i>
+</button>
+</div>
+</div>
+<!-- Top Thin Liquid Progress Bar (Red-Hot for Emergency) -->
+<div class="mt-3 w-full bg-slate-200/70 dark:bg-slate-800/70 h-2 squircle-full overflow-hidden p-0.5 backdrop-blur-sm">
+<div class="h-full bg-gradient-to-r from-red-600 via-rose-500 to-amber-500 squircle-full transition-all duration-500 ease-out shadow-sm" id="liquidProgressBar" style="width: 45%;"></div>
+</div>
+</header>
+<!-- Dynamic Flow Views Container -->
+<main class="w-full flex-1 flex flex-col justify-center my-auto py-1">
+<!-- ================= STEP 1: INITIAL CATEGORIZATION (Available for Reference) ================= -->
+<section class="step-view step-hidden space-y-6" id="step1">
+<div class="text-center space-y-2 max-w-xl mx-auto">
+<div class="inline-flex items-center gap-2 px-3 py-1 squircle-full bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 text-xs font-semibold border border-blue-200/60 dark:border-blue-800/40">
+<i class="fa-solid fa-user-shield"></i> Pre-Triaje Rápido MINSA / EsSalud
+          </div>
+<h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+            ¿Cuál es el motivo de su atención médica?
+          </h1>
+<p class="text-sm sm:text-base text-slate-600 dark:text-slate-400">
+            Seleccione la opción que mejor represente su estado actual para guiarlo de inmediato.
+          </p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 pt-2">
+<!-- Card: Emergencia Médica Active Highlight -->
+<div class="group relative liquid-glass-emergency squircle-lg p-7 sm:p-8 cursor-pointer press-tactile transition-all duration-300 flex flex-col justify-between ring-2 ring-red-500" onclick="switchSimulationTab('2A')">
+<div class="absolute -top-3 right-6 bg-red-600 text-white text-[11px] font-extrabold tracking-wider uppercase px-3.5 py-1 squircle-full shadow-lg emergency-pulse-ring">
+              Atención Inmediata
+            </div>
+<div>
+<div class="w-16 h-16 squircle-md bg-red-100 dark:bg-red-950/70 text-red-600 dark:text-red-400 flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform">
+<i class="fa-solid fa-truck-medical"></i>
+</div>
+<h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-2 group-hover:text-red-600 transition-colors">
+                Emergencia Médica
+              </h2>
+<p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
+                Peligro inminente de vida: dolor torácico intenso, asfixia severa, convulsión, desmayo o sangrado grave.
+              </p>
+<div class="flex flex-wrap gap-2 pt-2">
+<span class="text-xs px-2.5 py-1 squircle-full bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 font-extrabold">Prioridad I</span>
+<span class="text-xs px-2.5 py-1 squircle-full bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 font-bold">Urgencia Vital</span>
+</div>
+</div>
+<div class="mt-6 pt-4 border-t border-red-200 dark:border-red-900/60 flex items-center justify-between text-red-600 dark:text-red-400 font-bold text-sm">
+<span>Continuar con triaje de emergencia</span>
+<i class="fa-solid fa-chevron-right group-hover:translate-x-1.5 transition-transform"></i>
+</div>
+</div>
+<!-- Card: General Consultation -->
+<div class="group relative liquid-glass-card squircle-lg p-7 sm:p-8 cursor-pointer opacity-75 hover:opacity-100 press-tactile transition-all duration-300 flex flex-col justify-between" onclick="showToast('Ruta ambulatoria desactivada durante la simulación de emergencia', 'fa-info')">
+<div class="absolute -top-3 right-6 bg-blue-600 text-white text-[11px] font-extrabold tracking-wider uppercase px-3 py-1 squircle-full shadow-lg">
+              Ambulatorio / Posta
+            </div>
+<div>
+<div class="w-16 h-16 squircle-md bg-blue-100 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform">
+<i class="fa-solid fa-stethoscope"></i>
+</div>
+<h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-2">
+                Consulta General / Malestar
+              </h2>
+<p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
+                Síntomas comunes, malestar general, fiebre moderada, dolor articular, consulta preventiva o seguimiento.
+              </p>
+<div class="flex flex-wrap gap-2 pt-2">
+<span class="text-xs px-2.5 py-1 squircle-full bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium">Prioridad III / IV</span>
+<span class="text-xs px-2.5 py-1 squircle-full bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium">Red de Salud</span>
+</div>
+</div>
+<div class="mt-6 pt-4 border-t border-blue-100 dark:border-blue-900/40 flex items-center justify-between text-blue-600 dark:text-blue-400 font-semibold text-sm">
+<span>Localizar centro y continuar</span>
+<i class="fa-solid fa-chevron-right group-hover:translate-x-1.5 transition-transform"></i>
+</div>
+</div>
+</div>
+</section>
+<!-- ================= STEP 2A: ACTIVE EMERGENCY CATEGORIZATION (DEFAULT LOAD VIEW) ================= -->
+<section class="step-view step-active space-y-6" id="step2A">
+<!-- Emergency Alert Banner -->
+<div class="max-w-2xl mx-auto liquid-glass-emergency squircle-md p-4 flex items-center justify-between gap-3 shadow-emergency-glow">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-red-600 text-white flex items-center justify-center shrink-0 text-base shadow-md">
+<i class="fa-solid fa-triangle-exclamation animate-bounce"></i>
+</div>
+<div>
+<div class="text-xs font-black uppercase tracking-wider text-red-700 dark:text-red-400">
+                Protocolo Activo: Alerta Roja Prioridad I
+              </div>
+<p class="text-xs text-slate-700 dark:text-slate-300">
+                Seleccione el cuadro agudo del paciente para activar preaviso hospitalario inmediato.
+              </p>
+</div>
+</div>
+<a class="shrink-0 hidden sm:flex items-center gap-1.5 px-3 py-1.5 squircle-full bg-red-600 hover:bg-red-700 text-white text-xs font-bold shadow transition-all" href="tel:106">
+<i class="fa-solid fa-phone"></i> 106 SAMU
+          </a>
+</div>
+<div class="text-center space-y-1.5 max-w-xl mx-auto">
+<h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+            ¿Qué emergencia vital presenta el paciente?
+          </h1>
+<p class="text-sm text-slate-600 dark:text-slate-400">
+            Identifique la condición principal. Se priorizará shock trauma de forma inmediata.
+          </p>
+</div>
+<!-- Emergency Option Tiles -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 max-w-2xl mx-auto">
+<!-- Tile 1: Dolor de pecho (SELECTED BY DEFAULT AS REQUESTED) -->
+<button class="emergency-option-tile liquid-glass-card squircle-md p-4 text-left flex items-start gap-3.5 border-2 border-red-600 bg-red-50/50 dark:bg-red-950/40 shadow-emergency-glow press-tactile transition-all relative" id="tileChestPain" onclick="highlightEmergencyType('Dolor de pecho agudo / Sospecha de infarto (SCA)', this)">
+<div class="absolute top-3 right-3 text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-red-600 text-white shadow">
+              Seleccionado
+            </div>
+<div class="w-12 h-12 squircle-sm bg-red-600 text-white flex items-center justify-center text-xl shrink-0 shadow-md">
+<i class="fa-solid fa-heart-crack"></i>
+</div>
+<div class="pr-12">
+<div class="font-extrabold text-slate-900 dark:text-white text-sm">Dolor de pecho / Infarto (SCA)</div>
+<div class="text-xs text-slate-600 dark:text-slate-300 mt-0.5">Opresión precordial severa irradiada a brazo o mandíbula. Sudoración fría.</div>
+<div class="mt-2 text-[10px] font-extrabold text-red-600 dark:text-red-400 uppercase tracking-wide">
+<i class="fa-solid fa-bell mr-1"></i> Preaviso Cardíaco Inmediato
+              </div>
+</div>
+</button>
+<!-- Tile 2: Dificultad Respiratoria -->
+<button class="emergency-option-tile liquid-glass-card squircle-md p-4 text-left flex items-start gap-3.5 hover:border-red-500 hover:bg-red-50/30 dark:hover:bg-red-950/20 press-tactile transition-all" onclick="highlightEmergencyType('Dificultad respiratoria severa / Asfixia aguda', this)">
+<div class="w-12 h-12 squircle-sm bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xl shrink-0">
+<i class="fa-solid fa-lungs"></i>
+</div>
+<div>
+<div class="font-bold text-slate-900 dark:text-white text-sm">Asfixia / Dificultad severa</div>
+<div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Imposibilidad de hablar oraciones completas, cianosis labial.</div>
+</div>
+</button>
+<!-- Tile 3: Pérdida de Conocimiento / Convulsión -->
+<button class="emergency-option-tile liquid-glass-card squircle-md p-4 text-left flex items-start gap-3.5 hover:border-red-500 hover:bg-red-50/30 dark:hover:bg-red-950/20 press-tactile transition-all" onclick="highlightEmergencyType('Pérdida de conocimiento / Convulsión activa / ACV', this)">
+<div class="w-12 h-12 squircle-sm bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 flex items-center justify-center text-xl shrink-0">
+<i class="fa-solid fa-brain"></i>
+</div>
+<div>
+<div class="font-bold text-slate-900 dark:text-white text-sm">Convulsión / Desmayo / ACV</div>
+<div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Pérdida de conciencia, asimetría facial o debilidad unilateral.</div>
+</div>
+</button>
+<!-- Tile 4: Traumatismo / Sangrado Profuso -->
+<button class="emergency-option-tile liquid-glass-card squircle-md p-4 text-left flex items-start gap-3.5 hover:border-red-500 hover:bg-red-50/30 dark:hover:bg-red-950/20 press-tactile transition-all" onclick="highlightEmergencyType('Accidente / Traumatismo severo / Hemorragia profusa', this)">
+<div class="w-12 h-12 squircle-sm bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xl shrink-0">
+<i class="fa-solid fa-bandage"></i>
+</div>
+<div>
+<div class="font-bold text-slate-900 dark:text-white text-sm">Trauma / Sangrado grave</div>
+<div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Accidente de tránsito, fractura expuesta o hemorragia no cohibida.</div>
+</div>
+</button>
+</div>
+<!-- Fast Actions & Transition to Step 3 or Direct Pass Generation -->
+<div class="max-w-2xl mx-auto space-y-3 pt-2">
+<div class="flex flex-col sm:flex-row gap-3">
+<button class="flex-1 py-4 squircle-md bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-extrabold text-sm shadow-xl shadow-red-600/30 press-tactile transition-all flex items-center justify-center gap-2" onclick="switchSimulationTab('CRITICAL')">
+<span>Continuar a Filiación &amp; EVA Crítica (9-10)</span>
+<i class="fa-solid fa-arrow-right"></i>
+</button>
+<button class="sm:w-auto px-5 py-4 squircle-md bg-slate-900 dark:bg-slate-800 text-white hover:bg-slate-800 text-xs font-bold border border-red-500/40 press-tactile transition-all flex items-center justify-center gap-2 shadow-md" onclick="instantGenerateEmergencyPass()">
+<i class="fa-solid fa-bolt text-amber-400"></i>
+<span>Generar Pase Directo Código Rojo</span>
+</button>
+</div>
+</div>
+</section>
+<!-- ================= STEP 3: PATIENT FILIACIÓN & CRITICAL EVA EVALUATION (9-10) ================= -->
+<section class="step-view step-hidden space-y-5" id="stepCritical">
+<div class="text-center space-y-1 max-w-xl mx-auto">
+<div class="inline-flex items-center gap-2 px-3 py-1 squircle-full bg-red-100 dark:bg-red-950/70 text-red-600 dark:text-red-400 text-xs font-bold border border-red-200 dark:border-red-900">
+<i class="fa-solid fa-id-card-clip"></i> Priorización Inmediata
+          </div>
+<h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+            Datos del Paciente &amp; Intensidad de Dolor
+          </h1>
+<p class="text-sm text-slate-600 dark:text-slate-400">
+            Evaluación crítica de emergencia preconfigurada para ingreso prioritario.
+          </p>
+</div>
+<div class="liquid-glass-card squircle-lg p-6 sm:p-7 max-w-xl mx-auto space-y-5 border-2 border-red-500/30">
+<!-- Patient Form Fields -->
+<div class="space-y-4">
+<div>
+<label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
+                Nombres y Apellidos del Paciente *
+              </label>
+<div class="relative">
+<i class="fa-regular fa-user absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+<input class="w-full pl-11 pr-4 py-3 squircle-md bg-white/70 dark:bg-slate-900/70 border border-slate-300 dark:border-slate-700 text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-red-500" id="inputFullName" type="text" value="Juan Carlos Huamán Ramos"/>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3.5">
+<div>
+<label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
+                  DNI (8 dígitos) *
+                </label>
+<div class="relative">
+<i class="fa-regular fa-id-badge absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+<input class="w-full pl-11 pr-3 py-3 squircle-md bg-white/70 dark:bg-slate-900/70 border border-slate-300 dark:border-slate-700 text-sm font-mono font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-red-500" id="inputDNI" maxlength="8" type="text" value="48291045"/>
+</div>
+</div>
+<div>
+<label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
+                  Edad (Años) *
+                </label>
+<div class="relative">
+<i class="fa-solid fa-cake-candles absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+<input class="w-full pl-11 pr-3 py-3 squircle-md bg-white/70 dark:bg-slate-900/70 border border-slate-300 dark:border-slate-700 text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-red-500" id="inputAge" type="number" value="38"/>
+</div>
+</div>
+</div>
+</div>
+<!-- EVA Critical Slider Box (Pre-set to 9/10 Critical) -->
+<div class="liquid-glass-card-subtle squircle-md p-4 text-center space-y-3 border border-red-300 dark:border-red-900/50">
+<div class="flex items-center justify-between">
+<span class="text-xs font-black uppercase text-red-600 dark:text-red-400 flex items-center gap-1.5">
+<i class="fa-solid fa-gauge-high"></i> Escala EVA: Severidad Aguda
+              </span>
+<span class="text-[11px] font-extrabold px-2 py-0.5 squircle-full bg-red-600 text-white animate-pulse">
+                DOLOR AGUDO SEVERO
+              </span>
+</div>
+<!-- Live Big Badge -->
+<div class="flex items-center justify-center gap-4 py-1">
+<div class="w-20 h-20 squircle-md bg-red-600 text-white flex flex-col items-center justify-center shadow-emergency-glow" id="criticalEvaBadge">
+<span class="text-3xl font-black leading-none" id="criticalEvaNumber">9</span>
+<span class="text-[10px] font-extrabold uppercase mt-0.5">/ 10 EVA</span>
+</div>
+<div class="text-left">
+<div class="font-black text-red-600 dark:text-red-400 text-base">Nivel 9: Dolor Intolerable</div>
+<div class="text-xs text-slate-600 dark:text-slate-300 max-w-xs">
+                  Opresión precordial continua con irradiación hacia el cuello y brazo izquierdo.
+                </div>
+</div>
+</div>
+<!-- Slider Range -->
+<input class="w-full h-3 bg-red-200 dark:bg-red-950 squircle-full appearance-none cursor-pointer focus:outline-none" id="criticalEvaSlider" max="10" min="1" oninput="updateCriticalEva(this.value)" type="range" value="9"/>
+<div class="flex justify-between text-[11px] font-bold text-slate-500">
+<span>1 (Leve)</span>
+<span>5 (Moderado)</span>
+<span class="text-red-600 font-black">9-10 (Vital Crítico)</span>
+</div>
+</div>
+<!-- Hospital Target Assignment -->
+<div class="space-y-1.5">
+<label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+<i class="fa-solid fa-hospital text-red-600 mr-1"></i> Centro Hospitalario con Shock Trauma Asignado:
+            </label>
+<div class="p-3 squircle-md bg-blue-50/60 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/60 flex items-center justify-between text-xs">
+<div>
+<div class="font-extrabold text-slate-900 dark:text-white">Hospital Nac. Edgardo Rebagliati Martins</div>
+<div class="text-[11px] text-slate-500 dark:text-slate-400">Servicio de Emergencia y Shock Trauma Adultos (1.8 km)</div>
+</div>
+<span class="px-2 py-0.5 squircle-full bg-red-600 text-white font-extrabold text-[10px]">NIVEL IV</span>
+</div>
+</div>
+<div class="pt-2">
+<button class="w-full py-4 squircle-md bg-gradient-to-r from-red-600 via-rose-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-black text-sm shadow-xl shadow-red-600/35 press-tactile transition-all flex items-center justify-center gap-2" onclick="instantGenerateEmergencyPass()">
+<i class="fa-solid fa-qrcode text-base"></i>
+<span>Generar Pase Médico Digital - Prioridad I (Código Rojo)</span>
+</button>
+</div>
+</div>
+</section>
+<!-- ================= FINAL STEP: EMERGENCY DIGITAL MEDICAL PASS (PRIORIDAD I - CÓDIGO ROJO) ================= -->
+<section class="step-view step-hidden space-y-6" id="stepFinal">
+<div class="text-center space-y-1.5 max-w-xl mx-auto">
+<div class="inline-flex items-center gap-2 px-3 py-1 squircle-full bg-red-100 dark:bg-red-950/80 text-red-600 dark:text-red-400 text-xs font-extrabold border border-red-300 dark:border-red-800">
+<span class="w-2 h-2 rounded-full bg-red-600 animate-ping"></span>
+<span>ALERTA CLÍNICA ACTIVADA • CÓDIGO ROJO</span>
+</div>
+<h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+            Pase Médico de Emergencia - Prioridad I
+          </h1>
+<p class="text-sm text-slate-600 dark:text-slate-400">
+            Presente este código en el tópico de Shock Trauma o comunique el código a SAMU 106.
+          </p>
+</div>
+<!-- The Pass Digital Card with Intense Emergency Apple Liquid Glass Glow -->
+<div class="liquid-glass-emergency squircle-lg p-6 sm:p-8 max-w-md mx-auto relative overflow-hidden shadow-emergency-intense">
+<!-- Top Watermark / Status Header -->
+<div class="flex items-center justify-between pb-3.5 border-b border-red-200 dark:border-red-900/60">
+<div class="flex items-center gap-2.5">
+<div class="w-9 h-9 squircle-sm bg-red-600 flex items-center justify-center text-white text-base shadow">
+<i class="fa-solid fa-truck-medical animate-pulse"></i>
+</div>
+<div>
+<div class="text-xs font-extrabold text-slate-900 dark:text-white">SISTEMA INTEGRADO DE TRIAJE</div>
+<div class="text-[10px] font-bold text-red-600 dark:text-red-400">MINSA / ESSALUD • SBAR ENCRIPTADO</div>
+</div>
+</div>
+<!-- Dynamic Priority Badge (Red Prioridad I) -->
+<div class="px-3 py-1 squircle-full text-[11px] font-black tracking-wider uppercase bg-red-600 text-white border border-red-400 shadow-md" id="passPriorityBadge">
+              PRIORIDAD I • VITAL
+            </div>
+</div>
+<!-- Direct SAMU Call Quick-Action Bar Inside Card -->
+<div class="my-3 p-3 squircle-md bg-red-500/10 dark:bg-red-500/20 border border-red-300 dark:border-red-800 flex items-center justify-between gap-2">
+<div class="flex items-center gap-2">
+<i class="fa-solid fa-phone-volume text-red-600 text-sm"></i>
+<span class="text-xs font-bold text-red-700 dark:text-red-300">¿Requiere ambulancia?</span>
+</div>
+<a class="px-3 py-1 squircle-full bg-red-600 text-white font-extrabold text-xs hover:bg-red-700 press-tactile shadow flex items-center gap-1.5" href="tel:106">
+<span>Llamar SAMU 106</span>
+</a>
+</div>
+<!-- Native SVG QR Code Container -->
+<div class="my-4 flex flex-col items-center justify-center">
+<div class="p-3 bg-white squircle-md shadow-inner border-2 border-red-300 flex items-center justify-center relative">
+<!-- SVG Native QR Render Target -->
+<div class="w-48 h-48 flex items-center justify-center" id="nativeSvgQrContainer"></div>
+<!-- Subtle red badge on corner -->
+<div class="absolute -top-2 -right-2 px-2 py-0.5 rounded-full bg-red-600 text-white font-extrabold text-[9px] shadow">
+                CÓDIGO ROJO
+              </div>
+</div>
+<div class="mt-2.5 text-center">
+<span class="text-sm font-mono font-black text-red-600 dark:text-red-400 tracking-wider" id="passPassCode">ROJO-2025-0982-SCA</span>
+<div class="text-[10px] text-slate-500 dark:text-slate-400 font-medium">Firma Criptográfica SHA-256 Validada MINSA</div>
+</div>
+</div>
+<!-- Patient & Facility Summary Info -->
+<div class="space-y-2 bg-white/70 dark:bg-slate-900/70 p-3.5 squircle-md border border-red-200 dark:border-red-900/60 text-xs">
+<div class="flex justify-between items-center">
+<span class="text-slate-500 dark:text-slate-400">Paciente:</span>
+<span class="font-bold text-slate-900 dark:text-white" id="passPatientName">Juan Carlos Huamán Ramos</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-slate-500 dark:text-slate-400">DNI:</span>
+<span class="font-mono font-bold text-slate-900 dark:text-white" id="passPatientDNI">48291045</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-slate-500 dark:text-slate-400">Diagnóstico Presuntivo:</span>
+<span class="font-bold text-red-600 dark:text-red-400" id="passPatientSymptom">Sospecha de Infarto (SCA)</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-slate-500 dark:text-slate-400">Escala de Dolor (EVA):</span>
+<span class="font-black text-red-600 dark:text-red-400" id="passPatientEVA">9 / 10 (Intolerable)</span>
+</div>
+<div class="pt-2 border-t border-slate-200 dark:border-slate-800 flex flex-col gap-0.5">
+<span class="text-slate-500 dark:text-slate-400">Derivación Inmediata a:</span>
+<span class="font-extrabold text-blue-600 dark:text-blue-400 leading-snug" id="passHospitalTarget">Hosp. Nac. Edgardo Rebagliati - Tópico de Shock Trauma</span>
+</div>
+</div>
+<!-- Clinical SBAR Summary Inspector (Standard Hospital Triage) -->
+<div class="mt-3.5 pt-3 border-t border-red-200 dark:border-red-900/60">
+<button class="w-full text-left flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-200 hover:text-red-600" onclick="toggleSbarDetails()">
+<span class="flex items-center gap-1.5">
+<i class="fa-solid fa-file-medical text-red-600"></i>
+<span>Ver Reporte SBAR Clínico (Estandarizado)</span>
+</span>
+<i class="fa-solid fa-chevron-down text-[10px] transition-transform" id="sbarChevron"></i>
+</button>
+<div class="hidden mt-2 p-3 squircle-sm bg-slate-950 text-emerald-400 font-mono text-[11px] leading-relaxed overflow-x-auto border border-red-900/80" id="sbarContainer">
+<pre class="whitespace-pre-wrap" id="sbarContent"><!-- Dynamically inserted -->
+              </pre>
+</div>
+</div>
+<!-- Action Buttons: Download & Reset Flow -->
+<div class="mt-5 flex flex-col sm:flex-row gap-2.5">
+<button class="flex-1 py-3.5 squircle-md bg-red-600 hover:bg-red-700 text-white font-extrabold text-xs press-tactile transition-all flex items-center justify-center gap-2 shadow-lg shadow-red-600/30" onclick="downloadPass()">
+<i class="fa-solid fa-download"></i>
+<span>Descargar Pase Código Rojo</span>
+</button>
+<button class="py-3.5 px-4 squircle-md liquid-glass-card-subtle text-slate-700 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-800 font-bold text-xs press-tactile transition-all flex items-center justify-center gap-1.5" onclick="switchSimulationTab('2A')">
+<i class="fa-solid fa-rotate-left"></i>
+<span>Cambiar Caso</span>
+</button>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Health Systems Status Bar -->
+<footer class="w-full pt-4 pb-2 text-center text-xs text-slate-500 dark:text-slate-400">
+<div class="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
+<span class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-red-600 animate-ping"></span>
+<span class="font-bold text-red-600 dark:text-red-400">Canal de Emergencia Activo</span>
+</span>
+<span class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+<span>Red Nacional de Telesalud MINSA</span>
+</span>
+<span class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+<span>EsSalud Digital</span>
+</span>
+<span class="flex items-center gap-1.5">
+<i class="fa-solid fa-shield-halved text-[10px] text-slate-400"></i>
+<span>Cifrado Clínico AES-256</span>
+</span>
+</div>
+</footer>
+</div>
+<!-- Toast Notification Container -->
+<div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 squircle-full liquid-glass-emergency border border-red-500 text-xs font-bold text-slate-900 dark:text-white shadow-2xl flex items-center gap-2.5 transition-all duration-300 opacity-0 pointer-events-none translate-y-4" id="toastNotification">
+<i class="fa-solid fa-triangle-exclamation text-red-600 text-sm" id="toastIcon"></i>
+<span id="toastMessage">Operación realizada con éxito</span>
+</div>
+<!-- Application Logic -->
+<script>
+    // State Store pre-configured for Immediate Emergency Simulation (Prioridad I)
+    const triajeState = {
+      currentStep: '2A',
+      selectedEmergency: 'Dolor de pecho agudo / Sospecha de infarto (SCA)',
+      patient: {
+        fullName: 'Juan Carlos Huamán Ramos',
+        dni: '48291045',
+        age: 38
+      },
+      evaScore: 9,
+      hospital: 'Hospital Edgardo Rebagliati Martins - Emergencia / Shock Trauma',
+      sbarPayload: ''
+    };
+
+    // Initialize application on load directly into active emergency mode
+    document.addEventListener('DOMContentLoaded', () => {
+      // By default show step2A with chest pain highlighted
+      renderNativeVectorQR(`TRIAJEIA-PERU|ROJO|${triajeState.patient.dni}|EVA:9|INFARTO-SCA|PRIORIDAD-1`);
+      updateSbarDisplay();
+    });
+
+    // Switch between simulation tabs easily
+    function switchSimulationTab(tabKey) {
+      // Update tab active styles
+      document.querySelectorAll('.sim-tab').forEach(b => {
+        b.classList.remove('bg-red-600', 'text-white', 'shadow-sm');
+        b.classList.add('liquid-glass-card-subtle', 'text-slate-700', 'dark:text-slate-200');
+      });
+
+      const btnMap = {
+        '2A': 'tabBtn1',
+        'CRITICAL': 'tabBtn2',
+        'FINAL': 'tabBtn3'
+      };
+      if (btnMap[tabKey]) {
+        const activeBtn = document.getElementById(btnMap[tabKey]);
+        if (activeBtn) {
+          activeBtn.classList.remove('liquid-glass-card-subtle', 'text-slate-700', 'dark:text-slate-200');
+          activeBtn.classList.add('bg-red-600', 'text-white', 'shadow-sm');
+        }
+      }
+
+      // Hide all views
+      const views = document.querySelectorAll('.step-view');
+      views.forEach(v => {
+        v.classList.remove('step-active');
+        v.classList.add('step-hidden');
+      });
+
+      // Target selection
+      let targetEl = null;
+      let progressPercent = 33;
+      let progressBadge = 'Emergencia Prioridad I';
+
+      if (tabKey === 'STEP1') {
+        targetEl = document.getElementById('step1');
+        progressPercent = 15;
+        progressBadge = 'Selección de Motivo';
+      } else if (tabKey === '2A') {
+        targetEl = document.getElementById('step2A');
+        progressPercent = 35;
+        progressBadge = 'Paso 2A: Tipo de Emergencia';
+      } else if (tabKey === 'CRITICAL') {
+        targetEl = document.getElementById('stepCritical');
+        progressPercent = 70;
+        progressBadge = 'Paso 3: Evaluación Crítica EVA';
+      } else if (tabKey === 'FINAL') {
+        instantGenerateEmergencyPass();
+        return;
+      }
+
+      if (targetEl) {
+        targetEl.classList.remove('step-hidden');
+        targetEl.classList.add('step-active');
+      }
+
+      document.getElementById('liquidProgressBar').style.width = progressPercent + '%';
+      document.getElementById('stepCounterBadge').textContent = progressBadge;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Highlight specific emergency tile
+    function highlightEmergencyType(typeText, buttonEl) {
+      triajeState.selectedEmergency = typeText;
+      document.querySelectorAll('.emergency-option-tile').forEach(tile => {
+        tile.classList.remove('border-2', 'border-red-600', 'bg-red-50/50', 'dark:bg-red-950/40', 'shadow-emergency-glow');
+        const badge = tile.querySelector('.absolute');
+        if (badge) badge.remove();
+      });
+
+      buttonEl.classList.add('border-2', 'border-red-600', 'bg-red-50/50', 'dark:bg-red-950/40', 'shadow-emergency-glow');
+      
+      const badge = document.createElement('div');
+      badge.className = 'absolute top-3 right-3 text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-red-600 text-white shadow';
+      badge.textContent = 'Seleccionado';
+      buttonEl.appendChild(badge);
+
+      showToast(`Condición seleccionada: ${typeText}`, 'fa-truck-medical');
+    }
+
+    // Interactive EVA slider for stepCritical
+    function updateCriticalEva(val) {
+      val = parseInt(val, 10);
+      triajeState.evaScore = val;
+      const badge = document.getElementById('criticalEvaBadge');
+      const num = document.getElementById('criticalEvaNumber');
+      if (num) num.textContent = val;
+
+      if (val >= 8) {
+        badge.className = 'w-20 h-20 squircle-md bg-red-600 text-white flex flex-col items-center justify-center shadow-emergency-glow';
+      } else {
+        badge.className = 'w-20 h-20 squircle-md bg-amber-500 text-white flex flex-col items-center justify-center';
+      }
+    }
+
+    // Instant Emergency Pass Generation with SBAR & Vector QR
+    function instantGenerateEmergencyPass() {
+      // Collect latest values
+      const nameInput = document.getElementById('inputFullName');
+      const dniInput = document.getElementById('inputDNI');
+      const ageInput = document.getElementById('inputAge');
+      if (nameInput && nameInput.value) triajeState.patient.fullName = nameInput.value.trim();
+      if (dniInput && dniInput.value) triajeState.patient.dni = dniInput.value.trim();
+      if (ageInput && ageInput.value) triajeState.patient.age = ageInput.value.trim();
+
+      // Format SBAR Summary
+      const sbarText = `[S - SITUATION / SITUACIÓN]
+Paciente: ${triajeState.patient.fullName}, ${triajeState.patient.age} años, DNI ${triajeState.patient.dni}.
+Motivo de Urgencia Vital: ${triajeState.selectedEmergency}.
+Dolor en Escala EVA: ${triajeState.evaScore}/10 (Intensidad Aguda Máxima).
+
+[B - BACKGROUND / ANTECEDENTES]
+Antecedentes de riesgo: Sospecha de Hipertensión Arterial / Dislipidemia.
+Consumo tabaco/alcohol: No relevante ante cuadro agudo.
+Alergias previas: Sin reporte de alergias a medicamentos de reanimación.
+
+[A - ASSESSMENT / EVALUACIÓN CLÍNICA]
+Clasificación de Triaje: PRIORIDAD I - CÓDIGO ROJO (URGENCIA VITAL INMEDIATA).
+Sospecha Diagnóstica: Síndrome Coronario Agudo (SCA) / Isquemia Miocárdica.
+Riesgo Inminente: Alto compromiso hemodinámico. Tiempo puerta-aguja/balón crítico.
+
+[R - RECOMMENDATION / RECOMENDACIÓN]
+Destino Inmediato: Hospital Nac. Edgardo Rebagliati Martins - Tópico de Shock Trauma.
+Acciones: Traslado prioritario, monitorización ECG 12 derivaciones, oxigenoterapia si SatO2 < 90%, acceso venoso periférico permeable y activación SAMU 106.`;
+
+      triajeState.sbarPayload = sbarText;
+
+      // Update Pass UI
+      const passName = document.getElementById('passPatientName');
+      const passDni = document.getElementById('passPatientDNI');
+      const passSymptom = document.getElementById('passPatientSymptom');
+      const passEva = document.getElementById('passPatientEVA');
+      const passTarget = document.getElementById('passHospitalTarget');
+      const passCode = document.getElementById('passPassCode');
+
+      if (passName) passName.textContent = triajeState.patient.fullName;
+      if (passDni) passDni.textContent = triajeState.patient.dni;
+      if (passSymptom) passSymptom.textContent = triajeState.selectedEmergency;
+      if (passEva) passEva.textContent = `${triajeState.evaScore} / 10 (Intolerable / Severo)`;
+      if (passTarget) passTarget.textContent = triajeState.hospital;
+      
+      const codeRandom = `ROJO-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}-SCA`;
+      if (passCode) passCode.textContent = codeRandom;
+
+      // Generate Native Vector SVG QR with medical cross badge
+      const qrSeedString = `TRIAJEIA-PERU|${triajeState.patient.dni}|${codeRandom}|EVA:${triajeState.evaScore}|SCA-INFARTO|PRIORIDAD-1-ROJO`;
+      renderNativeVectorQR(qrSeedString);
+
+      // Render SBAR pre
+      const sbarPre = document.getElementById('sbarContent');
+      if (sbarPre) sbarPre.textContent = sbarText;
+
+      // Transition to final view
+      const views = document.querySelectorAll('.step-view');
+      views.forEach(v => {
+        v.classList.remove('step-active');
+        v.classList.add('step-hidden');
+      });
+
+      const finalView = document.getElementById('stepFinal');
+      if (finalView) {
+        finalView.classList.remove('step-hidden');
+        finalView.classList.add('step-active');
+      }
+
+      document.getElementById('liquidProgressBar').style.width = '100%';
+      document.getElementById('stepCounterBadge').textContent = 'Pase Código Rojo Emitido';
+      
+      // Highlight tab 3
+      document.querySelectorAll('.sim-tab').forEach(b => {
+        b.classList.remove('bg-red-600', 'text-white', 'shadow-sm');
+        b.classList.add('liquid-glass-card-subtle', 'text-slate-700', 'dark:text-slate-200');
+      });
+      const t3 = document.getElementById('tabBtn3');
+      if (t3) {
+        t3.classList.remove('liquid-glass-card-subtle', 'text-slate-700', 'dark:text-slate-200');
+        t3.classList.add('bg-red-600', 'text-white', 'shadow-sm');
+      }
+
+      showToast('Pase Médico de Emergencia emitido con Código Rojo', 'fa-truck-medical');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateSbarDisplay() {
+      const sbarPre = document.getElementById('sbarContent');
+      if (sbarPre && !sbarPre.textContent.trim()) {
+        instantGenerateEmergencyPass();
+        switchSimulationTab('2A');
+      }
+    }
+
+    // Native Standalone SVG QR Code Generator (Zero CDN dependencies)
+    function renderNativeVectorQR(dataString) {
+      const container = document.getElementById('nativeSvgQrContainer');
+      if (!container) return;
+      const size = 25; // 25x25 matrix QR
+      const cellSize = 7;
+      const svgDim = size * cellSize;
+
+      let hash = 0;
+      for (let i = 0; i < dataString.length; i++) {
+        hash = ((hash << 5) - hash) + dataString.charCodeAt(i);
+        hash |= 0;
+      }
+
+      const grid = [];
+      for (let r = 0; r < size; r++) {
+        grid[r] = [];
+        for (let c = 0; c < size; c++) {
+          const inTopLeftFinder = (r < 7 && c < 7);
+          const inTopRightFinder = (r < 7 && c >= size - 7);
+          const inBottomLeftFinder = (r >= size - 7 && c < 7);
+
+          if (inTopLeftFinder || inTopRightFinder || inBottomLeftFinder) {
+            const lr = (inBottomLeftFinder) ? r - (size - 7) : r;
+            const lc = (inTopRightFinder) ? c - (size - 7) : c;
+            const isBorder = (lr === 0 || lr === 6 || lc === 0 || lc === 6);
+            const isCenter = (lr >= 2 && lr <= 4 && lc >= 2 && lc <= 4);
+            grid[r][c] = (isBorder || isCenter) ? 1 : 0;
+          } else {
+            const bit = Math.abs(Math.sin((r * size + c + hash) * 1.5)) > 0.48 ? 1 : 0;
+            grid[r][c] = bit;
+          }
+        }
+      }
+
+      let rectsSvg = '';
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          if (grid[r][c] === 1) {
+            const x = c * cellSize;
+            const y = r * cellSize;
+            // High contrast crimson-dark rects
+            rectsSvg += `<rect x="${x}" y="${y}" width="${cellSize - 0.4}" height="${cellSize - 0.4}" rx="1.2" fill="#0f172a" />`;
+          }
+        }
+      }
+
+      // Red Medical Emergency Cross in QR center
+      const centerBoxSize = cellSize * 5.2;
+      const centerOffset = ((size - 5.2) / 2) * cellSize;
+      const centerGraphic = `
+        <rect x="${centerOffset}" y="${centerOffset}" width="${centerBoxSize}" height="${centerBoxSize}" rx="4" fill="#ffffff" stroke="#dc2626" stroke-width="2" />
+        <rect x="${centerOffset + centerBoxSize*0.4}" y="${centerOffset + centerBoxSize*0.18}" width="${centerBoxSize*0.2}" height="${centerBoxSize*0.64}" rx="1.5" fill="#dc2626" />
+        <rect x="${centerOffset + centerBoxSize*0.18}" y="${centerOffset + centerBoxSize*0.4}" width="${centerBoxSize*0.64}" height="${centerBoxSize*0.2}" rx="1.5" fill="#dc2626" />
+      `;
+
+      const fullSvg = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${svgDim} ${svgDim}" class="w-full h-full drop-shadow-sm">
+          ${rectsSvg}
+          ${centerGraphic}
+        </svg>
+      `;
+
+      container.innerHTML = fullSvg;
+    }
+
+    // Toggle SBAR clinical accordion
+    function toggleSbarDetails() {
+      const container = document.getElementById('sbarContainer');
+      const chevron = document.getElementById('sbarChevron');
+      if (container.classList.contains('hidden')) {
+        container.classList.remove('hidden');
+        chevron.classList.add('rotate-180');
+      } else {
+        container.classList.add('hidden');
+        chevron.classList.remove('rotate-180');
+      }
+    }
+
+    // Theme Switcher Logic
+    function toggleTheme() {
+      const html = document.documentElement;
+      const themeIcon = document.getElementById('themeIcon');
+      const isDark = html.classList.contains('dark');
+
+      if (isDark) {
+        html.classList.remove('dark');
+        html.classList.add('light');
+        themeIcon.className = 'fa-solid fa-moon text-base text-slate-700';
+        showToast('Modo Claro activado', 'fa-sun');
+      } else {
+        html.classList.remove('light');
+        html.classList.add('dark');
+        themeIcon.className = 'fa-solid fa-sun text-base text-amber-300';
+        showToast('Modo Oscuro activado', 'fa-moon');
+      }
+    }
+
+    // Go back step handler
+    function goBack() {
+      const finalView = document.getElementById('stepFinal');
+      const critView = document.getElementById('stepCritical');
+      
+      if (!finalView.classList.contains('step-hidden')) {
+        switchSimulationTab('CRITICAL');
+      } else if (!critView.classList.contains('step-hidden')) {
+        switchSimulationTab('2A');
+      } else {
+        switchSimulationTab('STEP1');
+      }
+    }
+
+    // Download Pass simulation
+    function downloadPass() {
+      const code = document.getElementById('passPassCode').textContent;
+      showToast(`Pase de Emergencia descargado: ${code}`, 'fa-floppy-disk');
+    }
+
+    // Toast Notification utility
+    function showToast(message, iconClass = 'fa-check') {
+      const toast = document.getElementById('toastNotification');
+      const msg = document.getElementById('toastMessage');
+      const icn = document.getElementById('toastIcon');
+
+      msg.textContent = message;
+      icn.className = `fa-solid ${iconClass} text-red-600 text-sm`;
+
+      toast.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-4');
+      toast.classList.add('opacity-100', 'translate-y-0');
+
+      setTimeout(() => {
+        toast.classList.remove('opacity-100', 'translate-y-0');
+        toast.classList.add('opacity-0', 'pointer-events-none', 'translate-y-4');
+      }, 3400);
+    }
+  </script>
+</body></html>

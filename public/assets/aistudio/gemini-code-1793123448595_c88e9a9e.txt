@@ -1,0 +1,88 @@
+===============================================================================
+               FLUJO DE EMERGENCIA MÉDICA VITAL (TEXTO PLANO)
+===============================================================================
+
+[ INICIO DE LA APLICACIÓN ]
+     │
+     ▼
+-------------------------------------------------------------------------------
+PASO 0: PANTALLA PRINCIPAL (Triaje de Entrada Inmediato)
+-------------------------------------------------------------------------------
+• Acción: El usuario selecciona la tarjeta héroe destacada:
+  [ 🚨 EMERGENCIA MÉDICA VITAL ] (Respuesta en 1 segundo, elimina fricción inicial).
+
+     │
+     ▼
+-------------------------------------------------------------------------------
+PASO 1: CATEGORÍA DE LA INCIDENCIA DE EMERGENCIA
+-------------------------------------------------------------------------------
+• Objetivo: Identificar el riesgo vital inmediatamente sin pedir datos administrativos.
+• Abanico de opciones a un solo toque (Single-Tap):
+  1. Dolor de Pecho Opresivo / Sospecha de Infarto
+  2. Dificultad Respiratoria Severa / Asfixia
+  3. Desmayo / Pérdida de Conocimiento / Convulsión
+  4. Accidente Traumatológico / Sangrado Abundante
+  5. Fiebre Extremadamente Alta en Lactante o Niño
+  6. OTRO MOTIVO ──> Despliega campo de texto + Micrófono (Dictado por voz)
+
+     │
+     ▼
+-------------------------------------------------------------------------------
+PASO 2: EVALUACIÓN DE MOVILIDAD E INMOVILIDAD
+-------------------------------------------------------------------------------
+• Pregunta clave: "¿El paciente se puede mover / trasladar por sus propios medios?"
+  
+  ┌─────────────────────────────────────┬─────────────────────────────────────┐
+  │ OPCIÓN A: NO PUEDE MOVERSE          │ OPCIÓN B: SÍ PUEDE MOVERSE          │
+  │ (Riesgo de inmovilidad / Trauma)    │ (Paciente trasladable en vehículo)  │
+  └──────────────────┬──────────────────┴──────────────────┬──────────────────┘
+                     │                                     │
+                     ▼                                     ▼
+┌─────────────────────────────────────────┐ ┌─────────────────────────────────┐
+│ PANTALLA DE AUXILIO PREHOSPITALARIO     │ │ PASO 3: NAVEGACIÓN GPS Y MAPA   │
+│ (Prioridad de Vida: Llamada Inmediata)  │ │ (Sugerencia de Hospitales)      │
+├─────────────────────────────────────────┤ ├─────────────────────────────────┤
+│ • Botón destacado de un solo toque:     │ │ • Mapa espacial interactivo     │
+│   [ 📞 LLAMAR AL SAMU 106 / 116 ]       │ │   (Leaflet.js) con geoloc. GPS  │
+│ • Despliega en pantalla gigante la      │ │   activa en tiempo real.        │
+│   DIRECCIÓN Y COORDENADAS GPS EXACTAS   │ │ • Filtrado de Hospitales con    │
+│   para dictárselas al operador.         │ │   Guardia de Emergencia 24h     │
+│ • Botón secundario:                     │ │   (Rebagliati, Almenara,        │
+│   "Completar Ficha Clínica mientras     │ │   Cayetano Heredia, Dos de Mayo,│
+│   llega la ayuda"                       │ │   Sabogal, etc.).               │
+└────────────────────┬────────────────────┘ └────────────────┬────────────────┘
+                     │                                       │
+                     └───────────────────┬───────────────────┘
+                                         │
+                                         ▼
+-------------------------------------------------------------------------------
+PASO 4: REGISTRO DE DATOS DEL PACIENTE (Filiación)
+-------------------------------------------------------------------------------
+• Se completa mientras el paciente es trasladado o mientras llega la ambulancia:
+  - Nombre y Apellidos completos
+  - DNI / Documento de Identidad (8 dígitos)
+  - Edad
+
+     │
+     ▼
+-------------------------------------------------------------------------------
+PASO 5: CUESTIONARIO RÁPIDO DE SEGUIMIENTO (Protocolo Clínico SAMPLE)
+-------------------------------------------------------------------------------
+• Selección mediante micro-respuestas a un solo toque (Single-Tap Grid):
+  1. Tiempo de Evolución: [< 30 minutos] [1 a 2 horas] [Hoy] [> 24 horas]
+  2. Alergias a Medicamentos: [Sin Alergias] [Penicilina] [AINEs] [Otras (Voz)]
+  3. Medicación Crítica Habitual: [Ninguno] [Anticoagulantes] [Insulina] [Antihipertensivos]
+  4. Preexistencias / Estado: [Ninguna] [Diabetes/HTA] [Enfermedad del Corazón] [Asma/Epilepsia] [Embarazo]
+  5. Última Ingesta de Alimentos/Agua: [< 2 horas] [2 a 6 horas] [> 6 horas (Ayuno)]
+     *(Filtro decisivo para sedación, intubación o ingreso a quirófano)*
+
+     │
+     ▼
+-------------------------------------------------------------------------------
+PASO 6: GENERACIÓN DIRECTA DEL PASE DE EMERGENCIA QR
+-------------------------------------------------------------------------------
+• Emisión instantánea del Pase Digital con la insignia [PRIORIDAD I - CÓDIGO ROJO].
+• Código QR vectorial SVG nativo codificado con la ficha estandarizada SBAR / SAMPLE.
+• Muestra el resumen de la incidencia, la dirección/coordenadas GPS y los antecedentes clave.
+• Listo para escaneo inmediato por el equipo médico en Shock Trauma o por los paramédicos de la ambulancia.
+===============================================================================

@@ -1,0 +1,94 @@
+===============================================================================
+         SISTEMA AETHER SPATIAL HEALTH - FLUJO GENERAL UNIFICADO
+===============================================================================
+
+[ INICIO DE LA APLICACIÓN ]
+     │
+     ▼
+-------------------------------------------------------------------------------
+PASO 0: PANTALLA PRINCIPAL (Triaje de Entrada Inmediato)
+-------------------------------------------------------------------------------
+El usuario elige entre 2 únicas vías principales:
+
+ [ 🚨 1. EMERGENCIA MÉDICA VITAL ]        [ 🩺 2. CONSULTA Y CONTROL MÉDICO ]
+ (Código Rojo / Peligro de vida)         (Dolencias específicas / Chequeos)
+
+     │                                                    │
+     ▼                                                    ▼
+===================================      ======================================
+  VÍA 1: EMERGENCIA MÉDICA VITAL           VÍA 2: CONSULTA Y CONTROL MÉDICO
+===================================      ======================================
+(Atención en segundos)                   (Atención ambulatoria / Urgencia menor)
+     │                                                    │
+     ├─► PASO E1: Motivo de Emergencia                    ├─► PASO C1: Datos del Paciente
+     │   • Dolor de pecho / Infarto                       │   • Nombre, DNI, Edad y Sexo
+     │   • Dificultad respiratoria / Asfixia              │
+     │   • Desmayo / Convulsión                           ├─► PASO C2: Geolocalización GPS
+     │   • Traumatismo / Sangrado profuso                 │   • Mapa espacial con postas
+     │   • Fiebre alta en niño/lactante                   │     y hospitales (MINSA/ESSALUD)
+     │   • Otro motivo (Texto / Dictado por voz)          │
+     │                                                    ├─► PASO C3: Tipo de Consulta
+     ├─► PASO E2: Evaluación de Movilidad                 │   • [A] Tengo un síntoma/dolor
+     │   ¿Se puede mover / trasladar?                     │   • [B] Chequeo / Control anual
+     │   │                                                │
+     │   ├── [ NO PUEDE MOVERSE ]                         ├─► PASO C4: Evaluación Clínica
+     │   │   • PANTALLA DE AUXILIO INMEDIATO              │   │
+     │   │   • Acceso rápido al SAMU 106 / 116            │   ├── Si eligió [A] (Síntoma):
+     │   │   • Muestra DIRECCIÓN Y COORDENADAS GPS        │   │   • Escala de dolor EVA (1-10)
+     │   │   • Botón "Completar ficha mientras            │   │     *(Si es >= 8, alerta de cambio
+     │   │     llega la ambulancia"                       │   │      a Vía de Emergencia)*
+     │   │                                                │   │   • Rejilla por zona corporal:
+     │   └── [ SÍ PUEDE MOVERSE ]                         │   │     - Cabeza/Ojos/Garganta
+     │       • Redirección a mapa GPS de                  │   │     - Pecho/Respiratorio
+     │       │ hospitales con guardia 24h                 │   │     - Abdomen/Digestivo
+     │       ▼                                            │   │     - Urinario/Reproductivo
+     ├─► PASO E3: Datos del Paciente                      │   │     - Músculos/Articulaciones/Piel
+     │   • Nombre, DNI y Edad, sexo                       │   │     - Salud Mental/Sueño
+     │   │                                                │   │     - Otro motivo (Texto/Voz)
+     ├─► PASO E4: Preguntas SAMPLE Rápidas                │   │   • Cuestionario ramificado breve
+     │   • Tiempo de evolución                            │   │
+     │   • Alergias a medicamentos                        │   └── Si eligió [B] (Chequeo/Control):
+     │   • Medicación crítica (anticoagulantes,           │       • Motivo: Rutina, Certificado
+     │     insulina, presión)                             │         o Control de enfermedad crónica
+     │   • Preexistencias / Embarazo                      │       • Tamizajes previos (Análisis de
+     │   • Última ingesta oral (<2h, 2-6h, >6h)            │         sangre, PAP, Mamografía, PSA)
+     │                                                    │
+     ▼                                                    ├─► PASO C5: Antecedentes y Hábitos
+ ┌─────────────────────────────────┐                      │   • Preexistencias (HTA, Diabetes,
+ │ EMISIÓN PASE DE EMERGENCIA QR   │                      │     Asma, Gastritis, Ninguna)
+ │ • Insignia PRIORIDAD I - ROJO   │                      │   • Alergias a fármacos
+ │ • Resumen SBAR/SAMPLE cargado   │                      │   • Medicamentos diarios
+ └─────────────────────────────────┘                      │   • Cirugías previas (Texto/Voz)
+                                                          │   • Hábitos (Tabaco y Alcohol)
+                                                          │
+                                                          ▼
+                                              ┌─────────────────────────────────┐
+                                              │ EMISIÓN PASE CONSULTA/CONTROL   │
+                                              │ • Insignia PRIORIDAD II/III/IV  │
+                                              │ • Ficha SBAR/SOAP compilada     │
+                                              └─────────────────────────────────┘
+
+===============================================================================
+         RESUMEN COMPILADO PARA EL MÉDICO (LECTURA DEL CÓDIGO QR)
+===============================================================================
+
+Al escanear el código QR en el consultorio o la puerta de emergencias, el sistema 
+despliega de inmediato la ficha estructurada bajo el estándar internacional SBAR:
+
+• S (SITUATION):
+  - Tipo de atención (Emergencia / Consulta por Síntoma / Control).
+  - Motivo exacto reportado por el paciente.
+
+• B (BACKGROUND):
+  - Filiación (Nombre, DNI, Edad, Sexo).
+  - Alergias destacadas y Medicación habitual de uso diario.
+  - Preexistencias médicas y Cirugías previas.
+
+• A (ASSESSMENT):
+  - Respuestas clave del cuestionario especializado (Zona corporal, duración).
+  - Escala del dolor EVA (1-10) o Ingesta oral reciente.
+  - Estado de movilidad y Coordenadas GPS (si requirió auxilio prehospitalario).
+
+• R (RECOMMENDATION):
+  - Clasificación automática de prioridad para la fila o triaje hospitalario.
+===============================================================================

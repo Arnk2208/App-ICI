@@ -1,0 +1,252 @@
+<!DOCTYPE html><html class="dark" lang="es" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport">
+<meta content="mobile_tab" name="shell-type">
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "on-primary-fixed-variant": "#003fa4",
+            "inverse-primary": "#0054d6",
+            "secondary": "#aac7ff",
+            "on-tertiary-container": "#fff5f5",
+            "on-background": "#e2e2ea",
+            "outline": "#8c90a1",
+            "surface-container-high": "#282a30",
+            "surface-container-highest": "#33353b",
+            "primary": "#b3c5ff",
+            "surface-dim": "#111319",
+            "surface-container": "#1d2025",
+            "outline-variant": "#424656",
+            "tertiary": "#ffb3b5",
+            "secondary-container": "#3e90ff",
+            "tertiary-container": "#e10a43",
+            "surface-container-lowest": "#0c0e13",
+            "on-primary-container": "#f8f7ff",
+            "surface": "#111319",
+            "surface-variant": "#33353b",
+            "on-surface-variant": "#c2c6d8",
+            "background": "#0b0f17",
+            "on-surface": "#e2e2ea",
+            "surface-container-low": "#191c21",
+            "primary-container": "#0066ff"
+          },
+          borderRadius: {
+            "squircle": "28px",
+            "full": "9999px"
+          },
+          fontFamily: {
+            "body": ["Manrope", "sans-serif"],
+            "mono": ["JetBrains Mono", "monospace"]
+          }
+        }
+      }
+    };
+  </script>
+<style>
+    @layer base {
+      html, body {
+        width: 100vw;
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+      }
+      body {
+        overscroll-behavior-y: none;
+      }
+      .pb-safe {
+        padding-bottom: env(safe-area-inset-bottom, 20px);
+      }
+      .pt-safe {
+        padding-top: env(safe-area-inset-top, 16px);
+      }
+    }
+    ::-webkit-scrollbar { display: none; }
+    
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 0.35; transform: scale(1); }
+      50% { opacity: 0.65; transform: scale(1.08); }
+    }
+    .animate-ambient {
+      animation: pulseGlow 6s ease-in-out infinite;
+    }
+    .glass-squircle {
+      backdrop-filter: blur(32px);
+      -webkit-backdrop-filter: blur(32px);
+      border-radius: 28px;
+    }
+  </style>
+</head>
+<body class="bg-[#0b0f17] dark:bg-[#0b0f17] text-[#e2e2ea] dark:text-[#e2e2ea] font-body antialiased relative min-h-screen selection:bg-primary selection:text-on-primary transition-colors duration-300">
+<!-- Ambient Dynamic Mesh Glows -->
+<div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+<div class="absolute -top-24 -left-20 w-[420px] h-[420px] rounded-full bg-red-600/15 dark:bg-red-500/12 blur-[120px] animate-ambient"></div>
+<div class="absolute top-1/2 -right-24 w-[380px] h-[380px] rounded-full bg-blue-600/15 dark:bg-blue-500/12 blur-[120px] animate-ambient" style="animation-delay: 3s;"></div>
+</div>
+<!-- Header: Minimal Glass Bar -->
+<header class="fixed top-0 inset-x-0 z-50 pt-safe bg-[#0b0f17]/60 dark:bg-[#0b0f17]/70 backdrop-blur-2xl border-b border-white/[0.05]">
+<div class="h-16 px-5 flex items-center justify-between gap-3">
+<!-- Brand & Step Progress Pill -->
+<div class="flex items-center gap-2">
+<div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.07] border border-white/[0.08] backdrop-blur-xl shadow-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-[#aac7ff] shadow-[0_0_8px_#aac7ff]"></span>
+<span class="font-bold text-xs tracking-wide text-white">TrIAje</span>
+</div>
+<div class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/[0.04] border border-white/[0.06]">
+<span class="font-mono text-[11px] text-zinc-400 font-medium tracking-tight">Paso 1 de 6</span>
+</div>
+</div>
+<!-- Quick Action Controls -->
+<div class="flex items-center gap-2">
+<!-- SAMU 106 Glowing Button -->
+<a class="h-9 px-3.5 rounded-full bg-gradient-to-r from-rose-600 to-red-600 text-white text-xs font-bold tracking-wider flex items-center gap-1.5 shadow-[0_0_18px_rgba(225,29,72,0.45)] active:scale-95 transition-all" href="tel:106">
+<span class="material-symbols-outlined text-[17px] leading-none animate-pulse" style="font-variation-settings: 'FILL' 1;">e911_emergency</span>
+<span class="">SAMU 106</span>
+</a>
+<!-- Dark / Light Mode Switcher -->
+<button aria-label="Cambiar tema" class="w-9 h-9 rounded-full bg-white/[0.06] border border-white/[0.08] flex items-center justify-center text-zinc-300 hover:text-white active:scale-90 transition-all" onclick="toggleTheme()">
+<span class="material-symbols-outlined text-[18px]" id="theme-icon">light_mode</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Body Content -->
+<main class="flex flex-col relative w-full pt-28 pb-32 min-h-screen z-10 px-5 max-w-md mx-auto">
+<!-- Ultra-Direct Header -->
+<div class="pt-2 pb-6">
+<h1 class="text-[32px] font-extrabold text-white tracking-tight leading-tight">
+        ¿Qué atención necesitas?
+      </h1>
+</div>
+<!-- Cards Container with Airy Spacing -->
+<div class="flex flex-col gap-5">
+<!-- Hero Card 1: Emergencia (Red Glow Accent) -->
+<div class="group relative glass-squircle p-7 bg-white/[0.04] dark:bg-zinc-900/40 border border-red-500/20 shadow-[0_20px_50px_rgba(0,0,0,0.45)] hover:border-red-500/40 transition-all duration-300 overflow-hidden">
+<!-- Subtle internal ruby lighting -->
+<div class="absolute -top-16 -right-16 w-44 h-44 rounded-full bg-rose-600/15 blur-2xl pointer-events-none"></div>
+<div class="relative z-10 flex flex-col gap-6">
+<div class="flex items-center gap-4">
+<!-- Glowing Ruby Icon Container -->
+<div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-red-500/30 to-rose-600/20 border border-red-500/40 flex items-center justify-center shrink-0 shadow-[0_0_24px_rgba(225,29,72,0.35)]">
+<span class="material-symbols-outlined text-[30px] text-red-400" style="font-variation-settings: 'FILL' 1;">emergency</span>
+</div>
+<!-- Title & Crisp 1-Line Subtitle -->
+<div class="flex flex-col">
+<h2 class="text-2xl font-bold text-white tracking-tight">Emergencia</h2>
+<p class="text-sm text-zinc-400 font-medium">Gravedad o riesgo vital</p>
+</div>
+</div>
+<!-- Full-Width Tactile Squircle Button -->
+<button class="w-full h-14 rounded-2xl bg-gradient-to-r from-red-600 via-rose-600 to-red-500 text-white font-bold text-[15px] tracking-wide flex items-center justify-center gap-2 shadow-[0_8px_28px_rgba(225,29,72,0.4)] active:scale-[0.98] transition-all duration-200 hover:brightness-110" onclick="handleSelect('emergencia')">
+<span class="">Iniciar Emergencia</span>
+<span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Hero Card 2: Consulta General (Blue/Cyan Glow Accent) -->
+<div class="group relative glass-squircle p-7 bg-white/[0.04] dark:bg-zinc-900/40 border border-blue-500/20 shadow-[0_20px_50px_rgba(0,0,0,0.45)] hover:border-blue-500/40 transition-all duration-300 overflow-hidden">
+<!-- Subtle internal blue lighting -->
+<div class="absolute -top-16 -right-16 w-44 h-44 rounded-full bg-blue-600/15 blur-2xl pointer-events-none"></div>
+<div class="relative z-10 flex flex-col gap-6">
+<div class="flex items-center gap-4">
+<!-- Glowing Blue Icon Container -->
+<div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500/30 to-sky-600/20 border border-blue-500/40 flex items-center justify-center shrink-0 shadow-[0_0_24px_rgba(59,130,246,0.35)]">
+<span class="material-symbols-outlined text-[30px] text-blue-400" style="font-variation-settings: 'FILL' 1;">stethoscope</span>
+</div>
+<!-- Title & Crisp 1-Line Subtitle -->
+<div class="flex flex-col">
+<h2 class="text-2xl font-bold text-white tracking-tight">Consulta General</h2>
+<p class="text-sm text-zinc-400 font-medium">Sintomatología o control</p>
+</div>
+</div>
+<!-- Full-Width Tactile Squircle Button -->
+<button class="w-full h-14 rounded-2xl bg-gradient-to-r from-blue-600 to-sky-500 text-white font-bold text-[15px] tracking-wide flex items-center justify-center gap-2 shadow-[0_8px_28px_rgba(37,99,235,0.35)] active:scale-[0.98] transition-all duration-200 hover:brightness-110" onclick="handleSelect('consulta')">
+<span class="">Continuar</span>
+<span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Instant Feedback Toast Notification -->
+<div class="transition-all duration-300 mt-6 mx-auto w-full max-w-xs p-3.5 rounded-2xl bg-zinc-800/90 border border-white/10 backdrop-blur-2xl flex items-center gap-3 shadow-2xl opacity-0 translate-y-3 pointer-events-none" id="action-toast">
+<div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 bg-red-500/20 text-red-400" id="toast-icon-wrap">
+<span class="material-symbols-outlined text-[18px]" id="toast-icon">emergency</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="text-xs font-bold text-white truncate" id="toast-title">Iniciando Triaje de Emergencia...</span>
+<span class="text-[11px] text-zinc-400 truncate">Conectando con triage IA</span>
+</div>
+</div>
+</main>
+<!-- Sleek Apple Spatial Bottom Tab Bar -->
+<nav class="fixed bottom-4 inset-x-0 z-50 px-5 pb-safe flex justify-center pointer-events-none">
+<div class="pointer-events-auto h-16 w-full max-w-md px-3 rounded-full bg-zinc-950/70 dark:bg-[#111622]/80 backdrop-blur-3xl border border-white/[0.08] shadow-[0_20px_50px_rgba(0,0,0,0.65)] flex items-center justify-around">
+<a aria-current="page" class="flex flex-col items-center justify-center w-14 h-12 rounded-full transition-all duration-200 bg-white/10 text-blue-400 shadow-[0_0_16px_rgba(147,197,253,0.3)] scale-105 font-bold" data-path="triaje" href="#">
+<span class="material-symbols-outlined text-[21px]" style="font-variation-settings: 'FILL' 1;">ecg_heart</span>
+<span class="font-mono text-[9px] mt-0.5 tracking-tight">Triaje</span>
+</a>
+
+<a class="flex flex-col items-center justify-center w-14 h-12 rounded-full text-zinc-400 hover:text-white transition-all duration-200 active:scale-95" data-path="signos" href="#">
+
+
+</a>
+<a class="flex flex-col items-center justify-center w-14 h-12 rounded-full text-zinc-400 hover:text-white transition-all duration-200 active:scale-95" data-path="historial" href="#">
+
+
+</a>
+</div>
+</nav>
+<!-- Interactive JavaScript Logic -->
+<script>
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      const icon = document.getElementById('theme-icon');
+      if (isDark) {
+        document.body.classList.remove('bg-[#f0f4f9]', 'text-zinc-900');
+        document.body.classList.add('bg-[#0b0f17]', 'text-[#e2e2ea]');
+        icon.innerText = 'light_mode';
+      } else {
+        document.body.classList.remove('bg-[#0b0f17]', 'text-[#e2e2ea]');
+        document.body.classList.add('bg-[#f0f4f9]', 'text-zinc-900');
+        icon.innerText = 'dark_mode';
+      }
+    }
+
+    let toastTimer;
+    function handleSelect(type) {
+      const toast = document.getElementById('action-toast');
+      const title = document.getElementById('toast-title');
+      const icon = document.getElementById('toast-icon');
+      const iconWrap = document.getElementById('toast-icon-wrap');
+
+      clearTimeout(toastTimer);
+
+      if (type === 'emergencia') {
+        title.innerText = 'Iniciando Triaje de Emergencia...';
+        icon.innerText = 'emergency';
+        iconWrap.className = 'w-8 h-8 rounded-xl flex items-center justify-center shrink-0 bg-red-500/20 text-red-400';
+      } else {
+        title.innerText = 'Iniciando Consulta General...';
+        icon.innerText = 'stethoscope';
+        iconWrap.className = 'w-8 h-8 rounded-xl flex items-center justify-center shrink-0 bg-blue-500/20 text-blue-400';
+      }
+
+      toast.classList.remove('opacity-0', 'translate-y-3', 'pointer-events-none');
+      toast.classList.add('opacity-100', 'translate-y-0');
+
+      toastTimer = setTimeout(() => {
+        toast.classList.remove('opacity-100', 'translate-y-0');
+        toast.classList.add('opacity-0', 'translate-y-3', 'pointer-events-none');
+      }, 2600);
+    }
+  </script>
+
+
+</body></html>

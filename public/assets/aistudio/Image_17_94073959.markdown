@@ -1,0 +1,263 @@
+---
+name: Aether Spatial Health
+colors:
+  surface: '#111319'
+  surface-dim: '#111319'
+  surface-bright: '#37393f'
+  surface-container-lowest: '#0c0e13'
+  surface-container-low: '#191c21'
+  surface-container: '#1d2025'
+  surface-container-high: '#282a30'
+  surface-container-highest: '#33353b'
+  on-surface: '#e2e2ea'
+  on-surface-variant: '#c2c6d8'
+  inverse-surface: '#e2e2ea'
+  inverse-on-surface: '#2e3036'
+  outline: '#8c90a1'
+  outline-variant: '#424656'
+  surface-tint: '#b3c5ff'
+  primary: '#b3c5ff'
+  on-primary: '#002b75'
+  primary-container: '#0066ff'
+  on-primary-container: '#f8f7ff'
+  inverse-primary: '#0054d6'
+  secondary: '#aac7ff'
+  on-secondary: '#003064'
+  secondary-container: '#3e90ff'
+  on-secondary-container: '#002957'
+  tertiary: '#ffb3b5'
+  on-tertiary: '#680019'
+  tertiary-container: '#e10a43'
+  on-tertiary-container: '#fff5f5'
+  error: '#ffb4ab'
+  on-error: '#690005'
+  error-container: '#93000a'
+  on-error-container: '#ffdad6'
+  primary-fixed: '#dae1ff'
+  primary-fixed-dim: '#b3c5ff'
+  on-primary-fixed: '#001849'
+  on-primary-fixed-variant: '#003fa4'
+  secondary-fixed: '#d6e3ff'
+  secondary-fixed-dim: '#aac7ff'
+  on-secondary-fixed: '#001b3e'
+  on-secondary-fixed-variant: '#00468d'
+  tertiary-fixed: '#ffdada'
+  tertiary-fixed-dim: '#ffb3b5'
+  on-tertiary-fixed: '#40000c'
+  on-tertiary-fixed-variant: '#920027'
+  background: '#111319'
+  on-background: '#e2e2ea'
+  surface-variant: '#33353b'
+typography:
+  display-lg:
+    fontFamily: Manrope
+    fontSize: 56px
+    fontWeight: '700'
+    lineHeight: 64px
+    letterSpacing: -0.03em
+  display-lg-mobile:
+    fontFamily: Manrope
+    fontSize: 40px
+    fontWeight: '700'
+    lineHeight: 48px
+    letterSpacing: -0.025em
+  headline-xl:
+    fontFamily: Manrope
+    fontSize: 36px
+    fontWeight: '600'
+    lineHeight: 44px
+    letterSpacing: -0.02em
+  headline-xl-mobile:
+    fontFamily: Manrope
+    fontSize: 28px
+    fontWeight: '600'
+    lineHeight: 36px
+    letterSpacing: -0.02em
+  headline-md:
+    fontFamily: Manrope
+    fontSize: 22px
+    fontWeight: '600'
+    lineHeight: 28px
+    letterSpacing: -0.015em
+  headline-sm:
+    fontFamily: Manrope
+    fontSize: 18px
+    fontWeight: '600'
+    lineHeight: 24px
+    letterSpacing: -0.01em
+  body-lg:
+    fontFamily: Manrope
+    fontSize: 17px
+    fontWeight: '400'
+    lineHeight: 24px
+    letterSpacing: -0.005em
+  body-md:
+    fontFamily: Manrope
+    fontSize: 15px
+    fontWeight: '400'
+    lineHeight: 22px
+    letterSpacing: 0em
+  body-sm:
+    fontFamily: Manrope
+    fontSize: 13px
+    fontWeight: '400'
+    lineHeight: 18px
+    letterSpacing: 0.005em
+  telemetry-lg:
+    fontFamily: JetBrains Mono
+    fontSize: 24px
+    fontWeight: '600'
+    lineHeight: 30px
+    letterSpacing: -0.02em
+  telemetry-md:
+    fontFamily: JetBrains Mono
+    fontSize: 14px
+    fontWeight: '500'
+    lineHeight: 18px
+    letterSpacing: 0.02em
+  label-caps:
+    fontFamily: JetBrains Mono
+    fontSize: 11px
+    fontWeight: '700'
+    lineHeight: 14px
+    letterSpacing: 0.08em
+rounded:
+  sm: 0.25rem
+  DEFAULT: 0.5rem
+  md: 0.75rem
+  lg: 1rem
+  xl: 1.5rem
+  full: 9999px
+spacing:
+  gutter: 1rem
+  gutter-tablet: 1.5rem
+  gutter-desktop: 2rem
+  margin: 1.25rem
+  margin-tablet: 2rem
+  margin-desktop: 3rem
+  space-xs: 0.25rem
+  space-sm: 0.5rem
+  space-md: 1rem
+  space-lg: 1.5rem
+  space-xl: 2.5rem
+---
+
+## Brand & Style
+
+This design system translates spatial computing ergonomics, optical physics, and clinical precision into an advanced mobile health interface. Drawing directly from spatial audio telemetry, ocular depth cues, and optical glass physics, the environment establishes an aura of serene clinical authority, hyper-tactile responsiveness, and biometric clarity.
+
+### Design Language & Movement
+- **Hyper-Realistic Liquid Glass**: Multilayered frosted glass panes exhibiting refractive edge specular highlights, adaptive backdrop chromatic shifts, and continuous variable depth.
+- **Biometric Underglow Luminance**: Biological data streams drive dynamic, fluid mesh gradients that radiate soft volumetric lighting beneath translucent glass materials rather than flat fills.
+- **Physicality & Tactility**: Interactions simulate micro-deflections in spatial depth (`z-axis` compression), light-refracting edge illumination upon touch, and synchronized haptic ticks that treat digital biometrics like optical surgical instruments.
+- **Clinical vs. Emergency Dichotomy**: Everyday wellness and telemetry exist in deep, atmospheric dark-field glass punctuated by electric sapphire. Critical physiological thresholds rupture the canvas with intense ruby neon irradiance.
+
+## Colors
+
+The palette leverages pure spatial darkness to unlock maximum dynamic range for glass refraction and bioluminescent vitals. Glass surfaces do not use opaque tones; they rely on calibrated optical alphas layered over a deep void substrate.
+
+### Core Swatches
+- **Primary (`#0066FF`) — Clinical Deep Sapphire**: Grounding anchor for telemetry graphs, spatial orientation rings, and steady-state cardiovascular metrics.
+- **Secondary (`#0A84FF`) — Electric Sapphire / Photon Blue**: High-energy emissive state for active toggles, spatial audio wavefront vectors, and focused glass highlights.
+- **Tertiary (`#FF2D55`) — Emergency Ruby Neon**: Critical biometric anomalies, emergency vitals overrides, elevated tachogram thresholds, and high-priority alarms.
+- **Neutral (`#07090E`) — Absolute Spatial Void**: Deep obsidian canvas designed to make gaussian diffusions, specular rim lighting, and fluid mesh underglows pop with spatial contrast.
+
+### Spatial Glass Tokens
+- **Canvas Base**: `#07090E` solid substrate.
+- **Glass Base Material**: `rgba(255, 255, 255, 0.04)` over void; `rgba(255, 255, 255, 0.08)` on floating tiers.
+- **Iridescent Rim Highlight**: Top/left light-catch at `rgba(255, 255, 255, 0.35)`, bleeding down to `rgba(255, 255, 255, 0.08)` along bottom/right margins.
+- **Mesh Underglow Ambient**: `rgba(10, 132, 255, 0.18)` radial dispersion beneath active telemetry panels; transitions to `rgba(255, 45, 85, 0.28)` when diagnostic criteria breach nominal thresholds.
+- **Text & Foreground Layers**:
+  - `label-primary`: `rgba(255, 255, 255, 0.96)`
+  - `label-secondary`: `rgba(255, 255, 255, 0.64)`
+  - `label-tertiary`: `rgba(255, 255, 255, 0.38)`
+
+## Typography
+
+The type hierarchy replicates the precision and neutrality of Apple's system typography via Manrope, accented by JetBrains Mono for clinical instrumentation, spatial frequency readings, and biometrics.
+
+### Implementation Principles
+- **Optical Kerning & Legibility**: Tight letter-spacing on headline scales evokes high-density spatial displays, while positive tracking on monospaced labels ensures rapid recognition during clinical emergencies.
+- **Luminescent Hierarchy**: Text color denotes importance rather than weight changes alone. Primary labels carry an ultra-subtle diffuse white drop shadow (`0 0 12px rgba(255, 255, 255, 0.15)`) when resting on dynamic fluid gradients to maintain accessibility across variable backdrops.
+- **Numerical Alignment**: All numerical readouts (BPM, SpO2, decibel dosimetry, respiratory rates) must use tabular numbers (`font-variant-numeric: tabular-nums`) via the monospaced telemetry scale.
+
+## Layout & Spacing
+
+Layout geometry follows an 8pt architectural rhythm, calibrated for floating, multi-pane glass modularity across handheld touchscreens and spatial mirrors.
+
+### Screen Adaptations
+- **Mobile (Base)**: 4-column fluid layout with an aggressive `1.25rem` margin. Panes span full width or half-width metrics. Floating HUD elements dock `0.75rem` above the bottom safe area to ensure finger accessibility while hovering over ambient mesh fields.
+- **Tablet**: 8-column layout with `1.5rem` gutters. Panes detach into floating spatial instrument cards, allowing ambient audio-wave field visualizers to breathe between modular health clusters.
+- **Desktop / Ultra-Wide Display**: 12-column layout centered at max width `1280px` with `2rem` gutters. Left-rail persistent glass navigation bar floats decoupled from the screen perimeter.
+
+### Spatial Insets
+Components preserve internal padding minimums (`space-lg` / `1.5rem`) to accommodate blurred glass edge falloff and prevent text from colliding with 1px iridescent specular borders.
+
+## Elevation & Depth
+
+Spatial elevation relies on physical optics rather than artificial drop shadows: transmission, blur radius, specular rim reflection, and reactive backlighting.
+
+### Depth Hierarchy
+
+1. **Substrate (Z: 0)**
+   - Dark spatial void (`#07090E`).
+   - Hosts dynamic fluid mesh gradient canvas (`canvas-webgl` or CSS multi-stop radial gradients) moving organically under active biological feedback loops.
+
+2. **Ground Glass Panels (Z: 10)**
+   - **Backdrop Blur**: `blur(40px) saturate(180%)`.
+   - **Background Fill**: `rgba(255, 255, 255, 0.03)`.
+   - **Border**: `1px solid rgba(255, 255, 255, 0.12)` with linear gradient orientation from top-left (`rgba(255, 255, 255, 0.35)`) to bottom-right (`rgba(255, 255, 255, 0.03)`).
+   - **Shadow**: `0 20px 40px -15px rgba(0, 0, 0, 0.6)`, `inset 0 1px 0 0 rgba(255, 255, 255, 0.2)`.
+
+3. **Floating Controls & Modals (Z: 20)**
+   - **Backdrop Blur**: `blur(56px) saturate(210%)`.
+   - **Background Fill**: `rgba(255, 255, 255, 0.07)`.
+   - **Border**: `1px solid rgba(255, 255, 255, 0.22)`.
+   - **Shadow**: `0 30px 60px -12px rgba(0, 0, 0, 0.8)`, `inset 0 1.5px 0 0 rgba(255, 255, 255, 0.35)`.
+   - **Underglow**: Diffuse primary light bloom `0 0 50px rgba(10, 132, 255, 0.15)`.
+
+4. **Critical Alerts & Overrides (Z: 30)**
+   - **Backdrop Blur**: `blur(64px) saturate(240%)`.
+   - **Background Fill**: `rgba(255, 45, 85, 0.06)`.
+   - **Border**: `1px solid rgba(255, 45, 85, 0.6)`.
+   - **Luminescent Halo**: Multi-tier neon radiation `0 0 30px rgba(255, 45, 85, 0.35)`, `0 0 80px rgba(255, 45, 85, 0.18)`.
+
+## Shapes
+
+The design system embraces the Apple squircle (superellipse) curvature across all geometry, generating frictionless optical flow across reflective glass borders.
+
+### Corner Curvature Rules
+- **Base Cards & Canvases**: True continuous curvature equivalent to `rounded-xl` (24px / `1.5rem`).
+- **Interactive Controls & Secondary Cards**: Continuous curvature `rounded-lg` (16px / `1rem`).
+- **Pill Badges, Action Pills, & Telemetry Toggles**: Full organic squircle pill (`rounded-full` / `9999px`).
+- **Iridescent Border Alignments**: Borders must map strictly to internal shape radii with 1px clipping to preserve specular highlight realism across all device pixel densities.
+
+## Components
+
+### Buttons & Interactive Pods
+- **Primary Spatial Trigger**: Squircle pill (`rounded-full`), `rgba(255, 255, 255, 0.1)` base glass, `1px solid rgba(255, 255, 255, 0.3)` rim highlight. Inner light glow defaults to clinical sapphire `rgba(10, 132, 255, 0.35)`. 
+- **Press State**: Scale translates to `0.975` on the z-plane; blur tightens from `40px` to `20px`; border specular illumination intensifies to `rgba(255, 255, 255, 0.7)` with instantaneous haptic feedback.
+- **Emergency Action**: Solid neon fill transition to `#FF2D55`, text color inverted to pure `#FFFFFF`, backed by continuous pulse radiation.
+
+### Cards & Biometric Glass Panes
+- **Structure**: Multi-layered container featuring dynamic mesh underglow at the base layer, 48px backdrop blur on the middle layer, and high-contrast typography on the surface.
+- **Edge Highlighting**: Top-edge gradient border simulates direct overhead spatial lighting (`rgba(255, 255, 255, 0.45)` down to transparent).
+- **Vitals Telemetry Tile**: Dedicated slot for large mono metrics (`telemetry-lg`) juxtaposed against fluid bezier wave graphs rendered in electric sapphire with glowing neon-traced tips.
+
+### Input Fields & Search Bars
+- Recessed glass appearance: `rgba(0, 0, 0, 0.25)` fill with inset top-shadow `inset 0 2px 4px rgba(0, 0, 0, 0.5)` to provide spatial depth inversion.
+- Border shifts to `1px solid #0A84FF` on focus with an ambient outer glow of `0 0 20px rgba(10, 132, 255, 0.25)`.
+- Placeholder text anchored in `label-tertiary` using `Manrope` body-md.
+
+### Chips & Sensor Mode Selectors
+- Compact pill forms (`rounded-full`), horizontal scroll arrangement.
+- Unselected: `rgba(255, 255, 255, 0.05)` fill, `label-secondary` text.
+- Selected: Emissive sapphire backplate `rgba(10, 132, 255, 0.2)`, `1px solid rgba(10, 132, 255, 0.6)` border, accompanied by a vibrating specular sheen animation.
+
+### Checkboxes & Segmented Radios
+- Spatial rings with `1.5px` glass walls.
+- Checked state produces an illuminated radial core that blooms outward in Electric Sapphire or Ruby, accompanied by a micro scale rebound.
+
+### Specialized Health Components
+- **Spatial Audio Audiogram Node**: Floating circular glass nodes mapped to 3D acoustic coordinates. Nodes pulse in synchrony with frequency thresholds, displaying dB levels via `JetBrains Mono` tooltips.
+- **Cardiovascular Tachogram Bar**: Multi-tiered horizontal glass meter with glowing clinical electric sapphire ticks, shifting instantly to Ruby Neon upon arrhythmia detection.

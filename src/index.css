@@ -1,0 +1,159 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+    --font-body: 'Manrope', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 20px);
+  }
+  .pt-safe {
+    padding-top: env(safe-area-inset-top, 16px);
+  }
+}
+
+/* Squircles and liquid glass */
+.rounded-squircle {
+  border-radius: 28px;
+}
+.squircle-lg {
+  border-radius: 32px;
+}
+.squircle-md {
+  border-radius: 24px;
+}
+.squircle-sm {
+  border-radius: 18px;
+}
+.squircle-full {
+  border-radius: 9999px;
+}
+
+/* Apple Liquid Glass Morphism */
+.liquid-glass-card {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(36px) saturate(190%);
+  -webkit-backdrop-filter: blur(36px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  box-shadow: 0 20px 50px -12px rgba(15, 23, 42, 0.08), 0 1px 0 rgba(255, 255, 255, 0.9) inset;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.dark .liquid-glass-card {
+  background: rgba(20, 27, 41, 0.78);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.75), 0 1px 0 rgba(255, 255, 255, 0.15) inset;
+}
+
+.liquid-glass-emergency {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(36px) saturate(200%);
+  -webkit-backdrop-filter: blur(36px) saturate(200%);
+  border: 2px solid rgba(239, 68, 68, 0.45);
+  box-shadow: 0 25px 60px -12px rgba(220, 38, 38, 0.25), 0 0 0 1px rgba(254, 226, 226, 0.6) inset;
+}
+.dark .liquid-glass-emergency {
+  background: rgba(28, 16, 20, 0.88);
+  backdrop-filter: blur(40px) saturate(200%);
+  -webkit-backdrop-filter: blur(40px) saturate(200%);
+  border: 2px solid rgba(239, 68, 68, 0.45);
+  box-shadow: 0 30px 65px -12px rgba(220, 38, 38, 0.35), 0 0 0 1px rgba(239, 68, 68, 0.2) inset;
+}
+
+.liquid-glass-card-subtle {
+  background: rgba(255, 255, 255, 0.52);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+.dark .liquid-glass-card-subtle {
+  background: rgba(30, 41, 59, 0.5);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-squircle {
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  border-radius: 28px;
+}
+
+/* Ambient liquid blur orbs */
+.ambient-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(95px);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.7;
+  transition: all 0.8s ease;
+}
+.dark .ambient-orb {
+  opacity: 0.4;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.35; transform: scale(1); }
+  50% { opacity: 0.65; transform: scale(1.08); }
+}
+.animate-ambient {
+  animation: pulseGlow 6s ease-in-out infinite;
+}
+
+@keyframes pulse-emergency {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.65);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 14px rgba(220, 38, 38, 0);
+    transform: scale(1.02);
+  }
+}
+.emergency-pulse-ring {
+  animation: pulse-emergency 2.2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+/* Tactile press */
+.press-tactile:active {
+  transform: scale(0.97);
+}
+
+/* Range input styling */
+input[type=range]::-webkit-slider-thumb {
+  appearance: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.4), 0 0 0 3px currentColor;
+  cursor: grab;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+input[type=range]::-webkit-slider-thumb:active {
+  cursor: grabbing;
+  transform: scale(1.15);
+  box-shadow: 0 6px 20px rgba(220, 38, 38, 0.5), 0 0 0 5px currentColor;
+}
+
+/* Hide scrollbar */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

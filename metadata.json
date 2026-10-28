@@ -1,0 +1,6 @@
+{
+  "name": "TriajeIA Perú - Triaje Clínico & Emergencia",
+  "description": "Sistema de pre-triaje médico inteligente y despacho de emergencias Código Rojo para MINSA y EsSalud con interfaz Apple Liquid Glass.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
