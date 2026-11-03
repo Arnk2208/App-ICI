@@ -132,7 +132,7 @@ export const DoctorQRScannerModal: React.FC<DoctorQRScannerModalProps> = ({
         doctor: parsed.doctor || 'Dr. Médico Especialista MINSA',
         specialty: parsed.specialty || 'Medicina General / Cardiología',
         facility: parsed.facility || 'Hospital Nacional de la Red',
-        patientDni: parsed.patientDni || parsed.patient?.dni || '72849102',
+        patientDni: parsed.patientDni || parsed.patient?.dni || '',
         diagnosis: parsed.diagnosis || parsed.category || 'Atención Médica Concluida',
         prescriptions: Array.isArray(parsed.prescriptions)
           ? parsed.prescriptions

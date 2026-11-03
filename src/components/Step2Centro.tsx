@@ -10,7 +10,8 @@ interface Step2CentroProps {
   showToast: (msg: string, icon?: string) => void;
 }
 
-const HEALTH_CENTERS = INITIAL_HEALTH_CENTERS;
+const normalizeSearchText = (value: string) =>
+  value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('es-PE').trim();
 
 export const Step2Centro: React.FC<Step2CentroProps> = ({
   onNext,
@@ -19,7 +20,6 @@ export const Step2Centro: React.FC<Step2CentroProps> = ({
   setPatient,
   showToast,
 }) => {
-  const [mode, setMode] = useState<'presencial' | 'teleconsulta'>('presencial');
   const [centersList, setCentersList] = useState<HealthCenterItem[]>(INITIAL_HEALTH_CENTERS);
   const [selectedCenterId, setSelectedCenterId] = useState<number>(() => {
     const selected =
@@ -57,36 +57,19 @@ export const Step2Centro: React.FC<Step2CentroProps> = ({
     showToast(`Centro seleccionado: ${center.name}`, 'fa-hospital');
   };
 
-  const handleModeChange = (newMode: 'presencial' | 'teleconsulta') => {
-    setMode(newMode);
-    showToast(
-      newMode === 'presencial'
-        ? 'Modalidad: Presencial en Centro de Salud'
-        : 'Modalidad: Teleconsulta Virtual Inmediata',
-      newMode === 'presencial' ? 'fa-hospital' : 'fa-video'
-    );
-  };
-
-  const filteredCenters = centersList
-    .filter((c) => {
-      if (activeFilter === '< 2 km') {
-        return (c.distanceKm ?? 0) <= 2.8;
-      }
-      if (activeFilter === 'Posta / CS I-3') {
-        return c.type.includes('I-3');
-      }
-      if (activeFilter === 'Hospital II / III') {
-        return c.type.includes('Hospital') || c.type.includes('III-1') || c.type.includes('EsSalud');
-      }
+  const normalizedQuery = normalizeSearchText(searchQuery);
+  const filteredCenters = centersList.filter((center) => {
+    if (!normalizedQuery) {
+      if (activeFilter === '< 2 km' && (center.distanceKm ?? 0) > 2.8) return false;
+      if (activeFilter === 'Posta / CS I-3' && !center.type.includes('I-3')) return false;
+      if (activeFilter === 'Hospital II / III' && !(
+        center.type.includes('Hospital') || center.type.includes('III-1') || center.type.includes('EsSalud')
+      )) return false;
       return true;
-    })
-    .filter((c) =>
-      c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.specialty.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (c.district && c.district.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (c.zone && c.zone.toLowerCase().includes(searchQuery.toLowerCase()))
-    );
+    }
+    return [center.name, center.type, center.specialty, center.district || '', center.zone || '', center.address || '']
+      .some((value) => normalizeSearchText(value).includes(normalizedQuery));
+  });
 
   return (
     <div className="flex flex-col w-full max-w-md mx-auto space-y-5 pb-24">
@@ -104,7 +87,7 @@ export const Step2Centro: React.FC<Step2CentroProps> = ({
         <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-800/60 backdrop-blur-xl">
           <span className="w-1.5 h-1.5 rounded-full bg-[#aac7ff] shadow-[0_0_6px_#aac7ff]"></span>
           <span className="font-mono text-[11px] text-[#aac7ff] uppercase tracking-wider font-semibold">
-            Centro &amp; Modalidad
+            Centro de salud
           </span>
         </div>
         <div className="w-10"></div>
@@ -116,42 +99,8 @@ export const Step2Centro: React.FC<Step2CentroProps> = ({
           ¿Dónde deseas atenderte?
         </h1>
         <p className="text-sm text-slate-500 dark:text-slate-400">
-          Ubica tu centro más cercano o elige teleconsulta.
+          Busca y selecciona un centro de salud para atención presencial.
         </p>
-      </div>
-
-      {/* Service Mode Switcher (Spatial VisionOS Segmented Pill) */}
-      <div className="p-1 rounded-full bg-slate-200 dark:bg-[#0c0e13]/90 backdrop-blur-2xl shadow-inner flex items-center gap-1">
-        <button
-          type="button"
-          onClick={() => handleModeChange('presencial')}
-          className={`flex-1 py-2.5 px-4 rounded-full font-body text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer ${
-            mode === 'presencial'
-              ? 'bg-[#3e90ff]/20 text-blue-600 dark:text-[#f8f7ff] shadow-[0_0_24px_rgba(62,144,255,0.25)] border border-blue-400/40'
-              : 'text-slate-500 dark:text-zinc-400 hover:text-white'
-          }`}
-        >
-          <span
-            className="material-symbols-outlined text-[17px] text-blue-500 dark:text-[#aac7ff]"
-            style={{ fontVariationSettings: "'FILL' 1" }}
-          >
-            domain
-          </span>
-          <span>Presencial (Centro de Salud)</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => handleModeChange('teleconsulta')}
-          className={`flex-1 py-2.5 px-3 rounded-full font-body text-xs sm:text-sm font-medium flex items-center justify-center gap-2 transition-all cursor-pointer ${
-            mode === 'teleconsulta'
-              ? 'bg-[#3e90ff]/20 text-blue-600 dark:text-[#f8f7ff] shadow-[0_0_24px_rgba(62,144,255,0.25)] border border-blue-400/40'
-              : 'text-slate-500 dark:text-zinc-400 hover:text-white'
-          }`}
-        >
-          <span className="material-symbols-outlined text-[17px]">video_chat</span>
-          <span>Teleconsulta</span>
-        </button>
       </div>
 
       {/* Search Spatial Bar */}
@@ -232,7 +181,11 @@ export const Step2Centro: React.FC<Step2CentroProps> = ({
           </span>
         </div>
 
-        {filteredCenters.map((center) => {
+        {filteredCenters.length === 0 ? (
+          <p className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 p-4 text-sm text-slate-500 dark:text-zinc-400">
+            No encontramos establecimientos con esa búsqueda. Prueba con otro nombre o distrito.
+          </p>
+        ) : filteredCenters.map((center) => {
           const isSelected = center.id === selectedCenterId;
           return (
             <div

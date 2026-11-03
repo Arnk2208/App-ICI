@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PatientData } from '../types';
+import { useSpeechDictation } from '../hooks/useSpeechDictation';
 
 interface Step5SintomaProps {
   onNext: () => void;
@@ -75,32 +76,36 @@ export const Step5Sintoma: React.FC<Step5SintomaProps> = ({
   const [duration, setDuration] = useState<string>(
     patient.symptomDuration || '< 24 horas'
   );
-  const [isRecording, setIsRecording] = useState<boolean>(false);
-  const [recordingSeconds, setRecordingSeconds] = useState<number>(4);
-  const [transcript, setTranscript] = useState<string>(
-    '"Siento opresión intensa en el pecho y leve fatiga..."'
+  const [recordingSeconds, setRecordingSeconds] = useState<number>(0);
+  const [transcript, setTranscript] = useState<string>('');
+  const dictation = useSpeechDictation(
+    (text) => {
+      setTranscript((prev) => [prev.trim(), text].filter(Boolean).join(' '));
+      setPatient((prev) => ({
+        ...prev,
+        symptomDescription: [prev.symptomDescription?.trim() || '', text].filter(Boolean).join(' '),
+      }));
+      showToast('Dictado agregado a la descripción del síntoma', 'fa-check');
+    },
+    (message) => showToast(message, 'fa-microphone-slash'),
   );
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    if (isRecording) {
+    if (dictation.isListening) {
       interval = setInterval(() => {
         setRecordingSeconds((prev) => prev + 1);
       }, 1000);
     }
     return () => clearInterval(interval);
-  }, [isRecording]);
+  }, [dictation.isListening]);
 
   const toggleRecording = () => {
-    if (!isRecording) {
-      setIsRecording(true);
+    if (!dictation.isListening) {
       setRecordingSeconds(0);
-      setTranscript('Escuchando en vivo... "Tengo punzadas y falta de aliento"');
-      showToast('Micrófono activado: escuchando síntoma...', 'fa-microphone');
+      dictation.start();
     } else {
-      setIsRecording(false);
-      setTranscript('"Siento opresión en el pecho y fatiga al caminar..."');
-      showToast('Voz procesada con éxito por IA MINSA', 'fa-check');
+      dictation.stop();
     }
   };
 
@@ -141,7 +146,7 @@ export const Step5Sintoma: React.FC<Step5SintomaProps> = ({
         <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-200 dark:bg-slate-900 shadow-sm border border-slate-300 dark:border-slate-800">
           <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
           <span className="font-mono text-xs text-blue-500 dark:text-[#aac7ff] font-semibold">
-            {patient.fullName || 'Valeria Mendoza'} • {patient.age || 28}a • EVA {patient.evaScore || 6}/10 {patient.painLocation || 'Pecho'}
+            {patient.fullName || 'Paciente'}{patient.age ? ` • ${patient.age}a` : ''} • EVA {patient.evaScore || 6}/10 {patient.painLocation || 'Pecho'}
           </span>
         </div>
 
@@ -176,7 +181,7 @@ export const Step5Sintoma: React.FC<Step5SintomaProps> = ({
           <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-blue-500 dark:text-[#aac7ff]">
             <span className="material-symbols-outlined text-[13px]">check_circle</span>
             <span className="font-mono text-[10px] font-bold">
-              {isRecording ? 'Grabando...' : 'Transcripción Lista'}
+              {dictation.isListening ? 'Escuchando...' : transcript ? 'Transcripción lista' : 'Listo para dictar'}
             </span>
           </div>
         </div>
@@ -193,9 +198,9 @@ export const Step5Sintoma: React.FC<Step5SintomaProps> = ({
               className="material-symbols-outlined text-[24px]"
               style={{ fontVariationSettings: "'FILL' 1" }}
             >
-              {isRecording ? 'graphic_eq' : 'mic'}
+              {dictation.isListening ? 'graphic_eq' : 'mic'}
             </span>
-            {isRecording && (
+            {dictation.isListening && (
               <span className="absolute inset-0 rounded-full bg-blue-500 opacity-40 animate-ping"></span>
             )}
           </button>
@@ -205,16 +210,16 @@ export const Step5Sintoma: React.FC<Step5SintomaProps> = ({
               {[8, 16, 12, 16, 6, 14, 10].map((h, i) => (
                 <span
                   key={i}
-                  className={`w-1 rounded-full bg-blue-500 ${isRecording ? 'animate-pulse' : ''}`}
+                  className={`w-1 rounded-full bg-blue-500 ${dictation.isListening ? 'animate-pulse' : ''}`}
                   style={{ height: `${h}px`, animationDelay: `${i * 120}ms` }}
                 ></span>
               ))}
               <span className="font-mono text-xs text-slate-400 ml-1.5">
-                00:0{recordingSeconds}s
+                00:{String(recordingSeconds).padStart(2, '0')}s
               </span>
             </div>
             <p className="text-xs text-slate-700 dark:text-zinc-200 italic truncate font-medium">
-              {transcript}
+              {transcript || 'El texto reconocido aparecerá aquí.'}
             </p>
           </div>
         </div>

@@ -10,7 +10,7 @@ import { HistoryTickets } from './components/HistoryTickets';
 export default function App() {
   const [currentStep, setCurrentStep] = useState<AppStep>('step0-selection');
   const [activeTab, setActiveTab] = useState<ActiveTab>('triaje');
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
   const [toast, setToast] = useState<{ visible: boolean; message: string; icon: string }>({
     visible: false,
     message: '',

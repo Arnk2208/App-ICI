@@ -20,3 +20,18 @@ View your app in AI Studio: https://ai.studio/apps/d4d6d3ec-5267-473d-9e74-248a5
    `npm run dev`
 # App-ICI
 # App-ICI
+
+## Consulta de DNI
+
+La consulta usa la API de Factiliza. Su plan gratuito ofrece 100 consultas por mes y requiere crear una cuenta para obtener un token. Copia ese token en `FACTILIZA_API_TOKEN` dentro de `.env.local` (puedes partir de `.env.example`). El token se usa únicamente desde el servidor.
+
+La API puede no incluir fecha de nacimiento ni sexo en su respuesta. En ese caso, esos campos quedan vacíos para que la persona los ingrese; el nombre y los demás datos también se pueden editar.
+
+```sh
+npm install
+npm run dev
+```
+
+Para producción, ejecuta `npm run build` y luego `npm start`. El servidor requiere que `FACTILIZA_API_TOKEN` esté configurado como variable de entorno. La consulta manual sigue disponible sin token.
+
+La API oficial de RENIEC para verificación de datos requiere acceso institucional y cobra por consulta; Factiliza es una alternativa de terceros con cuota gratuita, sujeta a sus límites y condiciones.

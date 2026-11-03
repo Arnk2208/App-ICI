@@ -110,9 +110,9 @@ export const Step4DolorEVA: React.FC<Step4DolorEVAProps> = ({
           <p className="font-mono text-[11px] text-slate-600 dark:text-zinc-300 truncate">
             Paciente:{' '}
             <span className="text-slate-900 dark:text-white font-semibold">
-              {patient.fullName || 'Valeria Mendoza'}
+              {patient.fullName || 'Paciente'}
             </span>{' '}
-            • {patient.age || 28} años • {patient.selectedCenter?.name || 'C.S. San Isidro'}
+            {patient.age ? ` • ${patient.age} años` : ''} • {patient.selectedCenter?.name || 'C.S. San Isidro'}
           </p>
         </div>
         <span

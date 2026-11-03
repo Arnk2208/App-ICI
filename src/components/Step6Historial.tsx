@@ -113,8 +113,8 @@ export const Step6Historial: React.FC<Step6HistorialProps> = ({
         onPassGenerated({
           id: passNumber,
           date: 'Hoy, ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          patient: patient.fullName || 'Valeria Sofía Mendoza Alarcón',
-          dni: patient.dni || '72849102',
+          patient: patient.fullName,
+          dni: patient.dni,
           category: 'PRIORIDAD II • URGENTE',
           type: 'general',
           diagnosis: `${patient.primarySymptom || 'Dolor Torácico'} (${patient.symptomDuration || '< 24h'})`,
@@ -152,7 +152,7 @@ export const Step6Historial: React.FC<Step6HistorialProps> = ({
             </div>
             <div className="flex flex-col min-w-0">
               <span className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white truncate">
-                {patient.fullName || 'Valeria Mendoza'} • {patient.age || 28}a
+                {patient.fullName || 'Paciente'}{patient.age ? ` • ${patient.age}a` : ''}
               </span>
               <span className="font-mono text-[11px] text-rose-500 dark:text-[#ffb3b5] font-medium flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span>
@@ -484,10 +484,10 @@ export const Step6Historial: React.FC<Step6HistorialProps> = ({
                     id: passNumber,
                     date: new Date().toISOString().slice(0, 10),
                     patient: {
-                      fullName: patient.fullName || 'Valeria Sofía Mendoza Alarcón',
-                      dni: patient.dni || '72849102',
-                      age: patient.age || 28,
-                      sex: patient.sex || 'F',
+                      fullName: patient.fullName,
+                      dni: patient.dni,
+                      age: patient.age || undefined,
+                      sex: patient.sex || undefined,
                     },
                     consultationType: patient.consultaTipo || 'sintoma',
                     priority: 'PRIORIDAD II',
@@ -517,7 +517,7 @@ export const Step6Historial: React.FC<Step6HistorialProps> = ({
               </div>
               <div className="mt-2.5 text-center">
                 <div className="mb-1 max-w-[260px] text-[11px] leading-relaxed text-slate-600 dark:text-slate-300">
-                  <span className="font-semibold">DNI:</span> {maskDniForDisplay(patient.dni || '72849102')} <span aria-hidden="true">·</span>{' '}
+                  <span className="font-semibold">DNI:</span> {patient.dni ? maskDniForDisplay(patient.dni) : 'No registrado'} <span aria-hidden="true">·</span>{' '}
                   <span className="font-semibold">Prioridad:</span> PRIORIDAD II<br />
                   <span className="font-semibold">Síntomas:</span>{' '}
                   {patient.symptomDescription || patient.primarySymptom || patient.bodyZone || 'Dolor Torácico'}
@@ -536,13 +536,13 @@ export const Step6Historial: React.FC<Step6HistorialProps> = ({
               <div className="flex justify-between items-center">
                 <span className="text-slate-500 dark:text-slate-400">Paciente:</span>
                 <span className="font-bold text-slate-900 dark:text-white">
-                  {patient.fullName || 'Valeria Sofía Mendoza Alarcón'}
+                  {patient.fullName || 'No registrado'}
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-slate-500 dark:text-slate-400">DNI:</span>
                 <span className="font-mono font-bold text-slate-900 dark:text-white">
-                  {maskDniForDisplay(patient.dni || '72849102')}
+                  {patient.dni ? maskDniForDisplay(patient.dni) : 'No registrado'}
                 </span>
               </div>
               <div className="flex justify-between items-center">
@@ -605,7 +605,7 @@ export const Step6Historial: React.FC<Step6HistorialProps> = ({
                 Generando Pase de Atención...
               </h3>
               <p className="text-xs text-slate-500 dark:text-zinc-400">
-                {patient.fullName || 'Valeria Mendoza'} clasificada para Prioridad II en Urgencias.
+                {patient.fullName || 'La persona'} clasificada para Prioridad II en Urgencias.
               </p>
             </div>
             <div className="p-3 rounded-2xl bg-slate-100 dark:bg-slate-800 font-mono text-xs text-blue-500 dark:text-[#aac7ff] flex items-center justify-center gap-2 font-semibold">

@@ -3,6 +3,8 @@ import { AppStep, PatientData, PassRecord, ConsultaTipo } from '../types';
 import { VectorQRCode } from './VectorQRCode';
 import { ConsultaMap, INITIAL_HEALTH_CENTERS, HealthCenterItem } from './ConsultaMap';
 import { maskDniForDisplay, stringifyQrPayload } from '../utils/qrPayload';
+import { lookupDni } from '../services/dniLookup';
+import { useSpeechDictation } from '../hooks/useSpeechDictation';
 
 interface ConsultaFlowProps {
   currentStep: AppStep;
@@ -14,7 +16,8 @@ interface ConsultaFlowProps {
   onEscalateToEmergency?: (eva: number, reason: string) => void;
 }
 
-const HEALTH_CENTERS = INITIAL_HEALTH_CENTERS;
+const normalizeSearchText = (value: string) =>
+  value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('es-PE').trim();
 
 const BODY_ZONES = [
   {
@@ -74,7 +77,10 @@ const PREEXISTING_CONDITIONS = [
   { id: 'asthma', title: 'Asma / Respiratorio', icon: 'air' },
   { id: 'gastritis', title: 'Gastritis / Reflujo', icon: 'medical_services' },
   { id: 'none', title: 'Ninguna condición previa', icon: 'health_and_safety' },
+  { id: 'other', title: 'Otros', icon: 'edit_note' },
 ];
+
+const COMMON_ALLERGIES = ['Sin Alergias', 'Penicilinas', 'AINEs', 'Sulfas', 'Otros'];
 
 export const ConsultaFlow: React.FC<ConsultaFlowProps> = ({
   currentStep,
@@ -88,13 +94,14 @@ export const ConsultaFlow: React.FC<ConsultaFlowProps> = ({
   // C1 State (Dynamic pre-fill from patient or empty for new user)
   const [fullName, setFullName] = useState<string>(patient.fullName || '');
   const [dni, setDni] = useState<string>(patient.dni || '');
-  const [age, setAge] = useState<number>(patient.age || (patient.age === 0 ? 0 : 28));
-  const [sex, setSex] = useState<'F' | 'M'>(patient.sex || 'F');
-  const [phone, setPhone] = useState<string>(patient.phone || '984 210 594');
+  const [age, setAge] = useState<number | ''>(patient.age || '');
+  const [sex, setSex] = useState<'F' | 'M' | ''>(patient.sex || '');
+  const [phone, setPhone] = useState<string>(patient.phone || '');
   const [beneficiaryType, setBeneficiaryType] = useState<'self' | 'other'>(patient.beneficiaryType || 'self');
+  const [isLookingUpDni, setIsLookingUpDni] = useState(false);
+  const [dniLookupMessage, setDniLookupMessage] = useState('');
 
   // C2 State
-  const [mode, setMode] = useState<'presencial' | 'teleconsulta'>('presencial');
   const [healthCentersList, setHealthCentersList] = useState<HealthCenterItem[]>(INITIAL_HEALTH_CENTERS);
   const [selectedCenter, setSelectedCenter] = useState<HealthCenterItem>(() => {
     const existing = patient.selectedCenter;
@@ -127,35 +134,55 @@ export const ConsultaFlow: React.FC<ConsultaFlowProps> = ({
   const [symptomDescription, setSymptomDescription] = useState<string>(patient.symptomDescription || '');
   const [symptomDuration, setSymptomDuration] = useState<string>(patient.symptomDuration || '< 24 horas');
   const [painType, setPainType] = useState<string>(patient.painType || 'Opresivo / Presión');
-  const [isDictatingSymptom, setIsDictatingSymptom] = useState<boolean>(false);
   const [showHighEvaModal, setShowHighEvaModal] = useState<boolean>(false);
 
   // C4 [B] Control State
   const [controlReason, setControlReason] = useState<
     'Rutina general' | 'Certificado médico / Laboral' | 'Control de enfermedad crónica'
   >(patient.controlReason || 'Rutina general');
-  const [screenings, setScreenings] = useState<string[]>(
-    patient.screenings?.length ? patient.screenings : ['Análisis de sangre y glucosa reciente']
-  );
+  const [screenings, setScreenings] = useState<string[]>(patient.screenings || []);
 
   // C5 Antecedentes State
   const [conditions, setConditions] = useState<string[]>(
-    patient.chronicConditions?.length ? patient.chronicConditions : ['Hipertensión arterial (HTA)']
+    patient.chronicConditions || []
   );
-  const [allergiesDrug, setAllergiesDrug] = useState<string>(patient.allergiesDrug || 'Penicilinas');
-  const [dailyMedications, setDailyMedications] = useState<string[]>(
-    patient.dailyMedications?.length ? patient.dailyMedications : ['Losartán 50mg / 24h']
+  const [otherCondition, setOtherCondition] = useState(
+    patient.chronicConditions?.find((value) => value.startsWith('Otros:'))?.slice('Otros:'.length).trim() || ''
   );
-  const [surgeries, setSurgeries] = useState<string>(patient.previousSurgeries || 'Ninguna reciente');
-  const [tobacco, setTobacco] = useState<string>(patient.tobacco || 'No fuma');
-  const [alcohol, setAlcohol] = useState<string>(patient.alcohol || 'Ocasional');
-  const [isDictatingSurgery, setIsDictatingSurgery] = useState<boolean>(false);
+  const [allergiesDrug, setAllergiesDrug] = useState<string>(() => {
+    if (!patient.allergiesDrug) return '';
+    return COMMON_ALLERGIES.includes(patient.allergiesDrug) ? patient.allergiesDrug : 'Otros';
+  });
+  const [dailyMedications, setDailyMedications] = useState<string[]>(patient.dailyMedications || []);
+  const [surgeries, setSurgeries] = useState<string>(patient.previousSurgeries || '');
+  const [tobacco, setTobacco] = useState<string>(patient.tobacco === 'No fuma' ? '' : (patient.tobacco || ''));
+  const [alcohol, setAlcohol] = useState<string>(patient.alcohol === 'No consume' ? '' : (patient.alcohol || ''));
+  const [allergiesOther, setAllergiesOther] = useState(
+    patient.allergiesDrug && !['Sin Alergias', 'Penicilinas', 'AINEs', 'Sulfas', 'Otros'].includes(patient.allergiesDrug)
+      ? patient.allergiesDrug.replace(/^Otros:\s*/, '')
+      : ''
+  );
 
   // Pass emission state
   const [passNumber] = useState<string>(
     () => `CONSULTA-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}-MINSA`
   );
   const [isSbarOpen, setIsSbarOpen] = useState<boolean>(false);
+
+  const symptomDictation = useSpeechDictation(
+    (text) => {
+      setSymptomDescription((prev) => [prev.trim(), text].filter(Boolean).join(' '));
+      showToast('Dictado agregado al síntoma', 'fa-check');
+    },
+    (message) => showToast(message, 'fa-microphone-slash'),
+  );
+  const surgeryDictation = useSpeechDictation(
+    (text) => {
+      setSurgeries((prev) => [prev.trim(), text].filter(Boolean).join(' '));
+      showToast('Dictado agregado a cirugías previas', 'fa-check');
+    },
+    (message) => showToast(message, 'fa-microphone-slash'),
+  );
 
   // --- Handlers ---
   const handleBeneficiaryChange = (type: 'self' | 'other') => {
@@ -176,24 +203,46 @@ export const ConsultaFlow: React.FC<ConsultaFlowProps> = ({
       } catch (e) {
         console.warn(e);
       }
-      setFullName('Valeria Sofía Mendoza Alarcón');
-      setDni('72849102');
-      setAge(28);
-      setSex('F');
-      setPhone('984 210 594');
-      showToast('Datos de usuario titular cargados', 'fa-user-check');
+      setFullName('');
+      setDni('');
+      setAge('');
+      setSex('');
+      setPhone('');
+      showToast('Completa tus datos manualmente', 'fa-user');
     } else {
       setFullName('');
       setDni('');
-      setAge(35);
-      setSex('M');
+      setAge('');
+      setSex('');
       showToast('Filiación para Familiar o Tercero', 'fa-users');
     }
   };
 
+  const handleDniLookup = async () => {
+    if (!/^\d{8}$/.test(dni)) {
+      setDniLookupMessage('Ingresa los 8 dígitos del DNI para consultar.');
+      return;
+    }
+    setIsLookingUpDni(true);
+    setDniLookupMessage('Consultando datos...');
+    try {
+      const result = await lookupDni(dni);
+      if (result.fullName) setFullName(result.fullName);
+      if (result.age !== undefined) setAge(result.age);
+      if (result.sex) setSex(result.sex);
+      setDniLookupMessage(result.fullName
+        ? 'Nombre encontrado. Puedes editar todos los datos.'
+        : 'La consulta no devolvió datos; completa el formulario manualmente.');
+    } catch (error) {
+      setDniLookupMessage(error instanceof Error ? error.message : 'No se pudo consultar. Completa los datos manualmente.');
+    } finally {
+      setIsLookingUpDni(false);
+    }
+  };
+
   const handleC1Next = () => {
-    if (!fullName.trim() || !dni.trim()) {
-      showToast('Por favor completa los nombres y DNI del paciente', 'fa-exclamation');
+    if (!fullName.trim() || !/^\d{8}$/.test(dni) || age === '' || Number(age) > 120 || !sex) {
+      showToast('Completa nombres, DNI de 8 dígitos, edad y sexo del paciente', 'fa-exclamation');
       return;
     }
     setPatient((prev) => ({
@@ -249,31 +298,9 @@ export const ConsultaFlow: React.FC<ConsultaFlowProps> = ({
   };
 
   const toggleVoiceDictation = (field: 'symptom' | 'surgery') => {
-    if (field === 'symptom') {
-      if (!isDictatingSymptom) {
-        setIsDictatingSymptom(true);
-        showToast('Escuchando síntoma por micrófono...', 'fa-microphone');
-        setTimeout(() => {
-          setSymptomDescription('Molestia persistente con ardor e inflamación desde ayer');
-          setIsDictatingSymptom(false);
-          showToast('Voz procesada con éxito', 'fa-check');
-        }, 1800);
-      } else {
-        setIsDictatingSymptom(false);
-      }
-    } else {
-      if (!isDictatingSurgery) {
-        setIsDictatingSurgery(true);
-        showToast('Escuchando antecedentes quirúrgicos...', 'fa-microphone');
-        setTimeout(() => {
-          setSurgeries('Apendicectomía laparoscópica en 2021');
-          setIsDictatingSurgery(false);
-          showToast('Cirugía registrada por voz', 'fa-check');
-        }, 1800);
-      } else {
-        setIsDictatingSurgery(false);
-      }
-    }
+    const dictation = field === 'symptom' ? symptomDictation : surgeryDictation;
+    if (dictation.isListening) dictation.stop();
+    else dictation.start();
   };
 
   const toggleScreening = (scr: string) => {
@@ -290,6 +317,13 @@ export const ConsultaFlow: React.FC<ConsultaFlowProps> = ({
   };
 
   const toggleCondition = (cond: string) => {
+    if (cond === 'Otros') {
+      const hasOther = conditions.some((value) => value === 'Otros' || value.startsWith('Otros:'));
+      setConditions((prev) => hasOther
+        ? prev.filter((value) => value !== 'Otros' && !value.startsWith('Otros:'))
+        : [...prev.filter((value) => !value.includes('Ninguna')), 'Otros']);
+      return;
+    }
     if (cond.includes('Ninguna')) {
       setConditions([cond]);
       return;
@@ -303,15 +337,19 @@ export const ConsultaFlow: React.FC<ConsultaFlowProps> = ({
   };
 
   const addMedication = () => {
-    const med = prompt('Ingrese el nombre y dosis del medicamento:', 'Omeprazol 20mg');
+    const med = prompt('Ingrese el nombre y dosis del medicamento:');
     if (med && med.trim()) {
-      setDailyMedications((prev) => [...prev, med.trim()]);
+      setDailyMedications((prev) => [...prev.filter((value) => value !== 'N/A'), med.trim()]);
       showToast(`Medicación agregada: ${med.trim()}`, 'fa-pills');
     }
   };
 
   const removeMedication = (med: string) => {
     setDailyMedications((prev) => prev.filter((m) => m !== med));
+  };
+
+  const toggleNoMedication = () => {
+    setDailyMedications((prev) => prev.includes('N/A') ? [] : ['N/A']);
   };
 
   // Determine Priority Level based on symptoms/EVA/control
@@ -367,22 +405,22 @@ export const ConsultaFlow: React.FC<ConsultaFlowProps> = ({
         ? `Consulta por síntoma: ${bodyZone}. Duración: ${symptomDuration}. Sensación: ${painType}. Nivel EVA: ${evaScore}/10.`
         : `Control de salud preventivo: ${controlReason}. Tamizajes previos: ${screenings.join(', ')}.`;
 
-    const backgroundText = `Paciente ${fullName}, ${age} años, DNI ${dni}, Sexo: ${sex}. Preexistencias: ${conditions.join(', ')}. Alergias medicamentosas: ${allergiesDrug}. Medicación diaria: ${dailyMedications.join(', ') || 'Ninguna'}. Cirugías: ${surgeries}. Hábitos: Tabaco (${tobacco}), Alcohol (${alcohol}).`;
+    const backgroundText = `Paciente ${fullName}, ${age} años, DNI ${dni}, Sexo: ${sex}. Preexistencias: ${formattedConditions.join(', ')}. Alergias medicamentosas: ${reportedAllergies}. Medicación diaria: ${dailyMedications.join(', ') || 'Ninguna'}. Cirugías: ${surgeries}. Hábitos: Tabaco (${tobacco}), Alcohol (${alcohol}).`;
 
     const assessmentText =
       consultaTipo === 'sintoma'
         ? `Evaluación clínica de triaje ambulatorio NTS N° 124-MINSA. Dolor calibrado EVA ${evaScore}/10 en ${bodyZone}. Clasificación: ${priority.level}.`
         : `Evaluación preventiva y cribado de rutina para paciente de ${age} años. Clasificación: ${priority.level}.`;
 
-    const recommendationText = `Turno asignado en ${selectedCenter.name} (${selectedCenter.specialty}). Modalidad: ${mode === 'presencial' ? 'Presencial' : 'Teleconsulta'}. Presentar QR en módulo de admisión para apertura de historia clínica electrónica SIHCE.`;
+    const recommendationText = `Turno presencial asignado en ${selectedCenter.name} (${selectedCenter.specialty}). Presentar QR en módulo de admisión para apertura de historia clínica electrónica SIHCE.`;
 
     const newPass: PassRecord = {
       id: passNumber,
       date: 'Hoy, ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       patient: fullName,
       dni,
-      age,
-      sex,
+      age: age === '' ? undefined : age,
+      sex: sex || undefined,
       category: priority.badge,
       priorityLevel: priority.level,
       type: consultaTipo === 'sintoma' ? 'consulta_sintoma' : 'consulta_control',
@@ -433,8 +471,8 @@ export const ConsultaFlow: React.FC<ConsultaFlowProps> = ({
       painType,
       controlReason,
       screenings,
-      chronicConditions: conditions,
-      allergiesDrug,
+      chronicConditions: formattedConditions,
+      allergiesDrug: reportedAllergies,
       dailyMedications,
       previousSurgeries: surgeries,
       tobacco,
@@ -446,17 +484,24 @@ export const ConsultaFlow: React.FC<ConsultaFlowProps> = ({
   };
 
   const priority = calculatePriority();
+  const formattedConditions = conditions.map((value) => {
+    if (value !== 'Otros' && !value.startsWith('Otros:')) return value;
+    return otherCondition.trim() ? `Otros: ${otherCondition.trim()}` : 'Otros';
+  });
+  const reportedAllergies = allergiesDrug === 'Otros'
+    ? (allergiesOther.trim() ? `Otros: ${allergiesOther.trim()}` : 'Otros')
+    : allergiesDrug;
 
   const sbarFormatted = `[S - SITUATION]
 Tipo de Atención: ${consultaTipo === 'sintoma' ? 'Consulta Ambulatoria por Síntoma' : 'Control Preventivo Anual'}
 Motivo Reportado: ${consultaTipo === 'sintoma' ? `${bodyZone} (${painType}) - ${symptomDuration}` : controlReason}
-Modalidad Elegida: ${mode === 'presencial' ? 'Presencial en Centro de Salud' : 'Teleconsulta Médica'}
+Modalidad Elegida: Presencial en Centro de Salud
 
 [B - BACKGROUND / FILIACIÓN Y ANTECEDENTES]
 Paciente: ${fullName}, ${age} años, DNI: ${dni}, Sexo: ${sex}
-Alergias a Medicamentos: ${allergiesDrug}
+Alergias a Medicamentos: ${reportedAllergies}
 Medicación Habitual: ${dailyMedications.join(', ') || 'Ninguna'}
-Preexistencias Crónicas: ${conditions.join(', ')}
+Preexistencias Crónicas: ${formattedConditions.join(', ')}
 Cirugías Previas: ${surgeries}
 Hábitos: Tabaco (${tobacco}) | Alcohol (${alcohol})
 
@@ -470,6 +515,20 @@ Nivel Asignado: ${priority.level} (${priority.badge})
 1. Asignación inmediata de turno en ${selectedCenter.name}.
 2. Atención por consultorio externo de ${selectedCenter.specialty}.
 3. Vinculación y registro digital directo en SIHCE MINSA / EsSalud Digital.`;
+
+  const normalizedCenterQuery = normalizeSearchText(searchQuery);
+  const visibleHealthCenters = healthCentersList.filter((center) => {
+    if (!normalizedCenterQuery) {
+      if (activeFilter === '< 2 km' && (center.distanceKm ?? 0) > 2.8) return false;
+      if (activeFilter === 'Posta / CS I-3' && !center.type.includes('I-3')) return false;
+      if (activeFilter === 'Hospital II / III' && !(
+        center.type.includes('Hospital') || center.type.includes('III-1') || center.type.includes('EsSalud')
+      )) return false;
+      return true;
+    }
+    return [center.name, center.specialty, center.type, center.district || '', center.zone || '', center.address || '']
+      .some((value) => normalizeSearchText(value).includes(normalizedCenterQuery));
+  });
 
   return (
     <div className="w-full max-w-xl mx-auto space-y-5 pt-1 pb-24">
@@ -528,9 +587,8 @@ Nivel Asignado: ${priority.level} (${priority.badge})
               <span className="font-mono text-[11px] text-slate-500 dark:text-zinc-400 uppercase font-bold">
                 Filiación Oficial
               </span>
-              <span className="inline-flex items-center gap-1 text-[11px] font-mono font-bold text-emerald-500">
-                <i className="fa-solid fa-shield-halved"></i>
-                <span>Validado con RENIEC</span>
+              <span className="inline-flex items-center gap-1 text-[11px] font-mono font-bold text-slate-500 dark:text-zinc-400">
+                <span>Datos editables</span>
               </span>
             </div>
 
@@ -554,40 +612,42 @@ Nivel Asignado: ${priority.level} (${priority.badge})
                 </label>
                 <input
                   type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
                   maxLength={8}
                   value={dni}
-                  onChange={(e) => setDni(e.target.value)}
-                  placeholder="72849102"
+                  onChange={(e) => setDni(e.target.value.replace(/\D/g, '').slice(0, 8))}
+                  placeholder="8 dígitos"
                   className="w-full px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-white font-mono font-bold text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 border border-slate-200 dark:border-slate-700"
                 />
+                <button
+                  type="button"
+                  onClick={handleDniLookup}
+                  disabled={isLookingUpDni}
+                  className="mt-2 px-3 py-1.5 rounded-lg bg-blue-600/10 text-blue-700 dark:text-blue-300 text-xs font-bold disabled:opacity-60"
+                >
+                  {isLookingUpDni ? 'Consultando…' : 'Buscar datos del DNI'}
+                </button>
+                {dniLookupMessage && <p role="status" className="mt-1 text-xs text-slate-500 dark:text-zinc-400">{dniLookupMessage}</p>}
               </div>
 
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5 font-mono">
                   Edad (Años) *
                 </label>
-                <div className="flex items-center gap-1">
-                  <button
-                    type="button"
-                    onClick={() => setAge((prev) => Math.max(1, prev - 1))}
-                    className="w-10 h-11 rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-white font-bold cursor-pointer"
-                  >
-                    -
-                  </button>
-                  <input
-                    type="number"
-                    value={age}
-                    onChange={(e) => setAge(parseInt(e.target.value) || 0)}
-                    className="flex-1 text-center py-2.5 rounded-xl bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-white font-bold text-sm focus:outline-none border border-slate-200 dark:border-slate-700"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setAge((prev) => Math.min(115, prev + 1))}
-                    className="w-10 h-11 rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-white font-bold cursor-pointer"
-                  >
-                    +
-                  </button>
-                </div>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={3}
+                  value={age}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, '').slice(0, 3);
+                    setAge(value ? Number(value) : '');
+                  }}
+                  placeholder="Edad"
+                  className="w-full text-center py-2.5 rounded-xl bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-white font-bold text-sm focus:outline-none border border-slate-200 dark:border-slate-700"
+                />
               </div>
             </div>
 
@@ -666,42 +726,8 @@ Nivel Asignado: ${priority.level} (${priority.badge})
               ¿Dónde deseas atenderte?
             </h1>
             <p className="text-sm text-slate-500 dark:text-zinc-400">
-              Ubica tu centro más cercano o elige teleconsulta virtual.
+              Busca y selecciona un centro de salud para tu atención presencial.
             </p>
-          </div>
-
-          {/* Mode Switcher */}
-          <div className="p-1 rounded-full bg-slate-200 dark:bg-slate-900 flex items-center gap-1">
-            <button
-              type="button"
-              onClick={() => {
-                setMode('presencial');
-                showToast('Modalidad: Presencial en Centro de Salud', 'fa-hospital');
-              }}
-              className={`flex-1 py-2.5 px-4 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2 ${
-                mode === 'presencial'
-                  ? 'bg-blue-600 text-white shadow-md'
-                  : 'text-slate-600 dark:text-zinc-400 hover:text-white'
-              }`}
-            >
-              <i className="fa-solid fa-hospital"></i>
-              <span>Presencial (Centro de Salud)</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setMode('teleconsulta');
-                showToast('Modalidad: Teleconsulta Virtual Inmediata', 'fa-video');
-              }}
-              className={`flex-1 py-2.5 px-4 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2 ${
-                mode === 'teleconsulta'
-                  ? 'bg-blue-600 text-white shadow-md'
-                  : 'text-slate-600 dark:text-zinc-400 hover:text-white'
-              }`}
-            >
-              <i className="fa-solid fa-video"></i>
-              <span>Teleconsulta Virtual</span>
-            </button>
           </div>
 
           {/* Search bar */}
@@ -789,27 +815,11 @@ Nivel Asignado: ${priority.level} (${priority.badge})
             </div>
 
             <div className="space-y-2 max-h-60 overflow-y-auto no-scrollbar">
-              {healthCentersList
-                .filter((c) => {
-                  if (activeFilter === '< 2 km') {
-                    return (c.distanceKm ?? 0) <= 2.8;
-                  }
-                  if (activeFilter === 'Posta / CS I-3') {
-                    return c.type.includes('I-3');
-                  }
-                  if (activeFilter === 'Hospital II / III') {
-                    return c.type.includes('Hospital') || c.type.includes('III-1') || c.type.includes('EsSalud');
-                  }
-                  return true;
-                })
-                .filter((c) =>
-                  c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                  c.specialty.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                  c.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                  (c.district && c.district.toLowerCase().includes(searchQuery.toLowerCase())) ||
-                  (c.zone && c.zone.toLowerCase().includes(searchQuery.toLowerCase()))
-                )
-                .map((center) => {
+              {visibleHealthCenters.length === 0 ? (
+                <p className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 p-4 text-sm text-slate-500 dark:text-zinc-400">
+                  No encontramos establecimientos con esa búsqueda. Prueba con otro nombre o distrito.
+                </p>
+              ) : visibleHealthCenters.map((center) => {
                   const isSelected = center.id === selectedCenter.id;
                   return (
                     <button
@@ -1090,11 +1100,11 @@ Nivel Asignado: ${priority.level} (${priority.badge})
                     type="button"
                     onClick={() => toggleVoiceDictation('symptom')}
                     className={`px-2.5 py-1 rounded-full text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
-                      isDictatingSymptom ? 'bg-red-600 text-white animate-pulse' : 'bg-blue-600 text-white'
+                      symptomDictation.isListening ? 'bg-red-600 text-white animate-pulse' : 'bg-blue-600 text-white'
                     }`}
                   >
                     <i className="fa-solid fa-microphone text-[10px]"></i>
-                    <span>{isDictatingSymptom ? 'Detener' : 'Dictar por voz'}</span>
+                    <span>{symptomDictation.isListening ? 'Detener' : 'Dictar por voz'}</span>
                   </button>
                 </div>
                 <textarea
@@ -1364,7 +1374,9 @@ Nivel Asignado: ${priority.level} (${priority.badge})
 
             <div className="grid grid-cols-2 gap-2">
               {PREEXISTING_CONDITIONS.map((cond) => {
-                const isSelected = conditions.includes(cond.title);
+                const isSelected = cond.id === 'other'
+                  ? conditions.some((value) => value === 'Otros' || value.startsWith('Otros:'))
+                  : conditions.includes(cond.title);
                 return (
                   <button
                     key={cond.id}
@@ -1382,6 +1394,23 @@ Nivel Asignado: ${priority.level} (${priority.badge})
                 );
               })}
             </div>
+            {conditions.some((value) => value === 'Otros' || value.startsWith('Otros:')) && (
+              <input
+                type="text"
+                value={otherCondition}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setOtherCondition(value);
+                  setConditions((prev) => [
+                    ...prev.filter((item) => item !== 'Otros' && !item.startsWith('Otros:')),
+                    value.trim() ? `Otros: ${value.trim()}` : 'Otros',
+                  ]);
+                }}
+                placeholder="Especifica otra preexistencia"
+                aria-label="Otra preexistencia médica"
+                className="w-full mt-2 px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-white text-xs border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            )}
           </div>
 
           {/* Alergias y Medicación Diaria */}
@@ -1393,7 +1422,7 @@ Nivel Asignado: ${priority.level} (${priority.badge})
                 <span>Alergias a fármacos:</span>
               </span>
               <div className="grid grid-cols-2 gap-1.5">
-                {['Sin Alergias', 'Penicilinas', 'AINEs', 'Sulfas'].map((al) => (
+                {COMMON_ALLERGIES.map((al) => (
                   <button
                     key={al}
                     type="button"
@@ -1408,6 +1437,16 @@ Nivel Asignado: ${priority.level} (${priority.badge})
                   </button>
                 ))}
               </div>
+              {allergiesDrug === 'Otros' && (
+                <input
+                  type="text"
+                  value={allergiesOther}
+                  onChange={(e) => setAllergiesOther(e.target.value)}
+                  placeholder="Especifica otra alergia"
+                  aria-label="Otra alergia a fármacos"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-white text-xs border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-rose-500"
+                />
+              )}
             </div>
 
             {/* Medicación Diaria */}
@@ -1444,6 +1483,17 @@ Nivel Asignado: ${priority.level} (${priority.badge})
                   </span>
                 ))}
               </div>
+              <button
+                type="button"
+                onClick={toggleNoMedication}
+                className={`px-2.5 py-1 rounded-full border text-[11px] font-bold transition-colors ${
+                  dailyMedications.includes('N/A')
+                    ? 'bg-blue-600 text-white border-blue-600'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-zinc-300 border-slate-200 dark:border-slate-700'
+                }`}
+              >
+                N/A · No tomo medicamentos
+              </button>
             </div>
           </div>
 
@@ -1460,11 +1510,11 @@ Nivel Asignado: ${priority.level} (${priority.badge})
                   type="button"
                   onClick={() => toggleVoiceDictation('surgery')}
                   className={`px-2 py-0.5 rounded-full text-[10px] font-bold transition-all flex items-center gap-1 cursor-pointer ${
-                    isDictatingSurgery ? 'bg-red-600 text-white animate-pulse' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-zinc-300'
+                    surgeryDictation.isListening ? 'bg-red-600 text-white animate-pulse' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-zinc-300'
                   }`}
                 >
                   <i className="fa-solid fa-microphone text-[9px]"></i>
-                  <span>Dictar</span>
+                  <span>{surgeryDictation.isListening ? 'Detener' : 'Dictar'}</span>
                 </button>
               </div>
               <input
@@ -1589,7 +1639,7 @@ Nivel Asignado: ${priority.level} (${priority.badge})
                     priority: priority.level,
                     category: priority.badge,
                     facility: selectedCenter.name,
-                    modality: mode === 'presencial' ? 'Presencial' : 'Teleconsulta',
+                    modality: 'Presencial',
                     eva: consultaTipo === 'sintoma' ? evaScore : 0,
                     symptoms: {
                       bodyZone: consultaTipo === 'sintoma' ? bodyZone : 'Control preventivo',
@@ -1604,15 +1654,15 @@ Nivel Asignado: ${priority.level} (${priority.badge})
                       accuracy: patientGps.accuracy,
                     },
                     medicalHistory: {
-                      conditions,
-                      allergies: allergiesDrug || 'Ninguna registrada',
+                      conditions: formattedConditions,
+                      allergies: reportedAllergies || 'Ninguna registrada',
                       medications: dailyMedications,
                       surgeries,
                     },
                     screenings: consultaTipo === 'control' ? screenings : [],
                     sbar: {
                       situation: `Atención ambulatoria ${priority.level}: ${consultaTipo === 'sintoma' ? symptomDescription || bodyZone : controlReason}`,
-                      background: `Paciente ${fullName}, DNI ${dni}, ${age} años. Antecedentes: ${conditions.join(', ') || 'Ninguno'}. Alergias: ${allergiesDrug || 'Ninguna'}`,
+                      background: `Paciente ${fullName}, DNI ${dni}, ${age} años. Antecedentes: ${formattedConditions.join(', ') || 'Ninguno'}. Alergias: ${reportedAllergies || 'Ninguna'}`,
                       assessment: `Nivel de prioridad ${priority.level}. EVA: ${consultaTipo === 'sintoma' ? `${evaScore}/10` : 'N/A'}. Duración: ${consultaTipo === 'sintoma' ? symptomDuration : 'Control'}`,
                       recommendation: `Turno confirmado en ${selectedCenter.name}. Presentar QR en módulo de admisión SIHCE.`,
                     },
@@ -1676,7 +1726,7 @@ Nivel Asignado: ${priority.level} (${priority.badge})
                 <div className="flex items-center justify-between">
                   <span className="text-slate-500 dark:text-slate-400">Modalidad:</span>
                   <span className="font-semibold text-slate-800 dark:text-zinc-200">
-                    {mode === 'presencial' ? 'Presencial (Tópico de Medicina General)' : 'Teleconsulta Virtual'}
+                    Presencial (Tópico de Medicina General)
                   </span>
                 </div>
                 <div className="flex items-center justify-between">

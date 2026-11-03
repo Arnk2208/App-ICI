@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { PatientData } from '../types';
+import { lookupDni } from '../services/dniLookup';
 
 interface Step3FiliacionProps {
   onNext: () => void;
@@ -20,47 +21,52 @@ export const Step3Filiacion: React.FC<Step3FiliacionProps> = ({
 }) => {
   const [docType, setDocType] = useState<string>('DNI');
   const [isValidatingReniec, setIsValidatingReniec] = useState<boolean>(false);
-  const [isReniecValidated, setIsReniecValidated] = useState<boolean>(true);
+  const [lookupMessage, setLookupMessage] = useState<string>('');
 
   const handleBeneficiaryChange = (type: 'self' | 'other') => {
     if (type === 'self') {
       setPatient((prev) => ({
         ...prev,
         beneficiaryType: 'self',
-        fullName: 'Valeria Sofía Mendoza Alarcón',
-        dni: '72849102',
-        age: 28,
-        sex: 'F',
       }));
-      showToast('Filiación actualizada: Titular asignado', 'fa-user');
+      showToast('Completa tus datos o consulta tu DNI', 'fa-user');
     } else {
       setPatient((prev) => ({
         ...prev,
         beneficiaryType: 'other',
         fullName: '',
         dni: '',
-        age: 35,
-        sex: 'M',
+        age: '',
+        sex: '',
       }));
+      setLookupMessage('');
       showToast('Filiación para Tercero o Familiar', 'fa-users');
     }
   };
 
-  const handleReniecValidation = () => {
+  const handleDniLookup = async () => {
+    if (!/^\d{8}$/.test(patient.dni)) {
+      setLookupMessage('Ingresa los 8 dígitos del DNI para consultar.');
+      return;
+    }
     setIsValidatingReniec(true);
-    setTimeout(() => {
+    setLookupMessage('Consultando datos...');
+    try {
+      const result = await lookupDni(patient.dni);
+      setPatient((prev) => ({
+        ...prev,
+        fullName: result.fullName || prev.fullName,
+        age: result.age ?? prev.age,
+        sex: result.sex || prev.sex,
+      }));
+      setLookupMessage(result.fullName
+        ? 'Nombre encontrado. Puedes editar todos los datos.'
+        : 'La consulta no devolvió datos; completa el formulario manualmente.');
+    } catch (error) {
+      setLookupMessage(error instanceof Error ? error.message : 'No se pudo consultar. Completa los datos manualmente.');
+    } finally {
       setIsValidatingReniec(false);
-      setIsReniecValidated(true);
-      if (patient.beneficiaryType === 'self' && !patient.fullName) {
-        setPatient((prev) => ({ ...prev, fullName: 'Valeria Sofía Mendoza Alarcón' }));
-      }
-      showToast('Identidad validada con el Registro Nacional RENIEC', 'fa-check');
-    }, 900);
-  };
-
-  const adjustAge = (delta: number) => {
-    const newAge = Math.max(1, Math.min(115, (patient.age || 28) + delta));
-    setPatient((prev) => ({ ...prev, age: newAge }));
+    }
   };
 
   return (
@@ -86,15 +92,7 @@ export const Step3Filiacion: React.FC<Step3FiliacionProps> = ({
           </span>
         </div>
 
-        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-rose-500/10 text-rose-400 font-mono text-[10px] font-bold tracking-wider backdrop-blur-xl border border-rose-500/20">
-          <span
-            className="material-symbols-outlined text-[15px] animate-pulse"
-            style={{ fontVariationSettings: "'FILL' 1" }}
-          >
-            favorite
-          </span>
-          <span>RENIEC OK</span>
-        </div>
+        <div className="w-10" aria-hidden="true" />
       </div>
 
       {/* Header Title Cluster */}
@@ -184,7 +182,7 @@ export const Step3Filiacion: React.FC<Step3FiliacionProps> = ({
           <label className="font-mono text-[11px] text-slate-500 dark:text-zinc-400 uppercase tracking-wider flex items-center justify-between font-bold">
             <span>Documento de Identidad</span>
             <span className="text-blue-500 dark:text-[#aac7ff] font-mono text-[10px]">
-              Autoconsulta RENIEC
+              Consulta DNI
             </span>
           </label>
           <div className="flex items-center gap-2">
@@ -204,32 +202,40 @@ export const Step3Filiacion: React.FC<Step3FiliacionProps> = ({
             </div>
             <div className="relative flex-1">
               <input
-                type="tel"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 maxLength={8}
                 value={patient.dni}
-                onChange={(e) => setPatient((prev) => ({ ...prev, dni: e.target.value }))}
-                placeholder="72849102"
+                onChange={(e) => {
+                  setLookupMessage('');
+                  setPatient((prev) => ({ ...prev, dni: e.target.value.replace(/\D/g, '').slice(0, 8) }));
+                }}
+                placeholder="8 dígitos"
+                aria-label="DNI, solo números"
                 className="w-full h-12 rounded-xl bg-slate-100 dark:bg-[#0c0e13]/80 text-slate-900 dark:text-white font-mono text-sm px-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-slate-200 dark:border-slate-800"
               />
               <button
                 type="button"
-                onClick={handleReniecValidation}
-                title="Consultar RENIEC"
-                className="absolute right-2 top-2 h-8 px-2.5 rounded-lg bg-blue-500/20 text-blue-500 dark:text-[#aac7ff] hover:bg-blue-600 hover:text-white transition-all flex items-center gap-1 cursor-pointer font-bold"
+                onClick={handleDniLookup}
+                title="Consultar datos del DNI"
+                disabled={isValidatingReniec}
+                className="absolute right-2 top-2 h-8 px-2.5 rounded-lg bg-blue-500/20 text-blue-500 dark:text-[#aac7ff] hover:bg-blue-600 hover:text-white transition-all flex items-center gap-1 cursor-pointer font-bold disabled:opacity-60"
               >
                 <span
                   className={`material-symbols-outlined text-[15px] ${
                     isValidatingReniec ? 'animate-spin' : ''
                   }`}
                 >
-                  {isReniecValidated && !isValidatingReniec ? 'check_circle' : 'fingerprint'}
+                  {isValidatingReniec ? 'progress_activity' : 'search'}
                 </span>
                 <span className="font-mono text-[10px]">
-                  {isValidatingReniec ? '...' : 'VALIDAR'}
+                  {isValidatingReniec ? '...' : 'BUSCAR'}
                 </span>
               </button>
             </div>
           </div>
+          {lookupMessage && <p role="status" className="mt-1 text-xs text-slate-500 dark:text-zinc-400">{lookupMessage}</p>}
         </div>
 
         {/* Field 2: Full Name */}
@@ -238,14 +244,8 @@ export const Step3Filiacion: React.FC<Step3FiliacionProps> = ({
             <label className="font-mono text-[11px] text-slate-500 dark:text-zinc-400 uppercase tracking-wider font-bold">
               Nombres y Apellidos
             </label>
-            <span className="font-mono text-[10px] text-emerald-500 dark:text-emerald-400 flex items-center gap-1 font-bold">
-              <span
-                className="material-symbols-outlined text-[13px]"
-                style={{ fontVariationSettings: "'FILL' 1" }}
-              >
-                verified
-              </span>
-              Identidad Confirmada
+            <span className="font-mono text-[10px] text-slate-500 dark:text-zinc-400 font-bold">
+              Editable
             </span>
           </div>
           <div className="relative flex items-center">
@@ -264,33 +264,25 @@ export const Step3Filiacion: React.FC<Step3FiliacionProps> = ({
 
         {/* Field 3: Age & Biological Sex Selector */}
         <div className="grid grid-cols-2 gap-3">
-          {/* Age Counter */}
+          {/* Age entry */}
           <div className="flex flex-col gap-1.5">
             <label className="font-mono text-[11px] text-slate-500 dark:text-zinc-400 uppercase tracking-wider font-bold">
               Edad Cumplida
             </label>
-            <div className="h-12 rounded-xl bg-slate-100 dark:bg-[#0c0e13]/80 flex items-center justify-between px-2 border border-slate-200 dark:border-slate-800">
-              <button
-                type="button"
-                onClick={() => adjustAge(-1)}
-                className="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-white flex items-center justify-center active:scale-95 transition-transform cursor-pointer"
-              >
-                <span className="material-symbols-outlined text-[16px]">remove</span>
-              </button>
-              <div className="flex items-baseline gap-1">
-                <span className="font-mono text-lg text-slate-900 dark:text-white font-bold">
-                  {patient.age || 28}
-                </span>
-                <span className="text-[11px] text-slate-400">años</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => adjustAge(1)}
-                className="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-white flex items-center justify-center active:scale-95 transition-transform cursor-pointer"
-              >
-                <span className="material-symbols-outlined text-[16px]">add</span>
-              </button>
-            </div>
+            <input
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              maxLength={3}
+              value={patient.age}
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, '').slice(0, 3);
+                setPatient((prev) => ({ ...prev, age: value ? Number(value) : '' }));
+              }}
+              placeholder="Edad"
+              aria-label="Edad en años"
+              className="w-full h-12 rounded-xl bg-slate-100 dark:bg-[#0c0e13]/80 px-3 text-slate-900 dark:text-white font-mono text-sm border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
           </div>
 
           {/* Biological Sex */}

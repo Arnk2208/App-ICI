@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { AppStep, PatientData, PassRecord, SampleClinicalData } from '../types';
 import { VectorQRCode } from './VectorQRCode';
 import { maskDniForDisplay, stringifyQrPayload } from '../utils/qrPayload';
+import { useSpeechDictation } from '../hooks/useSpeechDictation';
 import { EmergencyMap, EMERGENCY_HOSPITALS, EmergencyHospital } from './EmergencyMap';
 import {
   getCurrentGpsPosition,
@@ -76,7 +77,6 @@ export const EmergencyFlow: React.FC<EmergencyFlowProps> = ({
     patient.emergencyCategory || EMERGENCY_CATEGORIES[0].title
   );
   const [customReason, setCustomReason] = useState<string>(patient.emergencyCustomReason || '');
-  const [isDictating, setIsDictating] = useState<boolean>(false);
   const [canMove, setCanMove] = useState<boolean | null>(patient.canMove);
 
   const [gpsData, setGpsData] = useState({
@@ -142,8 +142,15 @@ export const EmergencyFlow: React.FC<EmergencyFlowProps> = ({
   // E3 Datos del Paciente (Dynamic pre-fill from patient/profile or empty)
   const [fullName, setFullName] = useState<string>(patient.fullName || '');
   const [dni, setDni] = useState<string>(patient.dni || '');
-  const [age, setAge] = useState<number>(patient.age || (patient.age === 0 ? 0 : 28));
-  const [sex, setSex] = useState<'F' | 'M'>(patient.sex || 'F');
+  const [age, setAge] = useState<number | ''>(patient.age || '');
+  const [sex, setSex] = useState<'F' | 'M' | ''>(patient.sex || '');
+  const emergencyDictation = useSpeechDictation(
+    (text) => {
+      setCustomReason((prev) => [prev.trim(), text].filter(Boolean).join(' '));
+      showToast('Dictado agregado al motivo de emergencia', 'fa-check');
+    },
+    (message) => showToast(message, 'fa-microphone-slash'),
+  );
 
   // E4 SAMPLE Clinical Protocol
   const [sampleData, setSampleData] = useState<SampleClinicalData>(
@@ -179,17 +186,8 @@ export const EmergencyFlow: React.FC<EmergencyFlowProps> = ({
   };
 
   const toggleVoiceDictation = () => {
-    if (!isDictating) {
-      setIsDictating(true);
-      showToast('Escuchando síntoma por micrófono...', 'fa-microphone');
-      setTimeout(() => {
-        setCustomReason('Dolor torácico severo con disnea y mareos intensos');
-        setIsDictating(false);
-        showToast('Transcripción de voz procesada con éxito', 'fa-check');
-      }, 2000);
-    } else {
-      setIsDictating(false);
-    }
+    if (emergencyDictation.isListening) emergencyDictation.stop();
+    else emergencyDictation.start();
   };
 
   const handleMobilityChoice = (mobility: boolean) => {
@@ -223,8 +221,8 @@ export const EmergencyFlow: React.FC<EmergencyFlowProps> = ({
       date: 'Hoy, ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       patient: fullName,
       dni,
-      age,
-      sex,
+      age: age === '' ? undefined : age,
+      sex: sex || undefined,
       category: 'CÓDIGO ROJO • PRIORIDAD I',
       priorityLevel: 'PRIORIDAD I',
       type: 'emergency',
@@ -376,11 +374,11 @@ Tiempo Estimado de Arribo: ${selectedHospital.eta} (${selectedHospital.distance}
                           type="button"
                           onClick={toggleVoiceDictation}
                           className={`absolute right-3 bottom-3 w-8 h-8 rounded-full flex items-center justify-center text-white transition-all cursor-pointer ${
-                            isDictating ? 'bg-red-600 animate-pulse' : 'bg-blue-600 hover:bg-blue-700'
+                            emergencyDictation.isListening ? 'bg-red-600 animate-pulse' : 'bg-blue-600 hover:bg-blue-700'
                           }`}
                           title="Dictar síntoma por voz"
                         >
-                          <i className={`fa-solid ${isDictating ? 'fa-stop' : 'fa-microphone'} text-xs`}></i>
+                          <i className={`fa-solid ${emergencyDictation.isListening ? 'fa-stop' : 'fa-microphone'} text-xs`}></i>
                         </button>
                       </div>
 
@@ -763,11 +761,11 @@ Tiempo Estimado de Arribo: ${selectedHospital.eta} (${selectedHospital.distance}
                 } catch (e) {
                   console.warn(e);
                 }
-                setFullName('Valeria Sofía Mendoza Alarcón');
-                setDni('72849102');
-                setAge(28);
-                setSex('F');
-                showToast('Datos personales cargados', 'fa-check');
+                setFullName('');
+                setDni('');
+                setAge(0);
+                setSex('');
+                showToast('Completa tus datos manualmente', 'fa-user');
               }}
               className="px-2.5 py-1 rounded-lg bg-blue-600 text-white font-bold text-[11px] cursor-pointer hover:bg-blue-700 transition-all"
             >
@@ -797,10 +795,12 @@ Tiempo Estimado de Arribo: ${selectedHospital.eta} (${selectedHospital.distance}
                 </label>
                 <input
                   type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
                   maxLength={8}
                   value={dni}
-                  onChange={(e) => setDni(e.target.value)}
-                  placeholder="72849102"
+                  onChange={(e) => setDni(e.target.value.replace(/\D/g, '').slice(0, 8))}
+                  placeholder="8 dígitos"
                   className="w-full px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-white font-mono font-bold text-sm focus:outline-none focus:ring-2 focus:ring-red-500 border border-slate-200 dark:border-slate-700"
                 />
               </div>
@@ -810,10 +810,16 @@ Tiempo Estimado de Arribo: ${selectedHospital.eta} (${selectedHospital.distance}
                   Edad (Años) *
                 </label>
                 <input
-                  type="number"
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={3}
                   value={age}
-                  onChange={(e) => setAge(parseInt(e.target.value) || 0)}
-                  placeholder="28"
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, '').slice(0, 3);
+                    setAge(value ? Number(value) : '');
+                  }}
+                  placeholder="Edad"
                   className="w-full px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-white font-bold text-sm focus:outline-none focus:ring-2 focus:ring-red-500 border border-slate-200 dark:border-slate-700"
                 />
               </div>
